@@ -1,7 +1,6 @@
 *.zip
 mod_event_qrscan.zip
-*.min.js
-js/html5-qrcode.min.js
+js/site-checkin-default.min.js
 __pycache__/
 *.pyc
 *.pyo

@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <updates>
 	<update>
 		<name>mod_event_qrscan</name>
-		<version>{VERSION}</version>
+		<version>1.0.0</version>
 		<infourl>https://example.com</infourl>
 		<downloads>
 			<downloadurl type="full" format="zip" url="https://example.com/mod_event_qrscan.zip">mod_event_qrscan.zip</downloadurl>
 		</downloads>
-		<sha256></sha256>
+		<sha256>bfa3ffb00687c07d1f0da4958ee796dc070f861e82cb58df63568b3a1e03771a</sha256>
 	</update>
 </updates>
