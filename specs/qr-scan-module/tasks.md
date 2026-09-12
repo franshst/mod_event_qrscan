@@ -5,11 +5,11 @@ Module project root is separate from this reference repo; paths below are module
 
 ## Phase 1 — Module skeleton + manifest
 
-- [ ] T1. Create module layout (`mod_event_qrscan.php`, `tmpl/default.php`, `Helper/EventQrscanHelper.php`, `language/en-GB/*.ini|sys.ini`, `js/`, `update/`, `LICENSE`, `README.md`) mirroring Event-summary structure
-- [ ] T2. Author `update/mod_event_qrscan.xml` SOURCE manifest with `checkin_interval=2000`, `ticket_max_length=32`, Bootstrap text-utility classes (`text_success_class=text-success`, `text_warning_class=text-danger`, no module CSS, FR-6 styling), `layout`; namespace + `<version>{VERSION}` placeholder (no URL/key/sound params — these come from EB `getConfig()`); built artifact root `mod_event_qrscan.xml` is stamped by `build.py`, do not edit directly
-- [ ] T2b. Author `update/event_qrscan_update.xml` template with required nodes (`name`, `version` with `{VERSION}` placeholder, `infourl`, `downloads><downloadurl` pointing to `mod_event_qrscan.zip`, `sha256`) — built by `build.py` T13 via `{VERSION}` substitution; see `contracts/update-xml.md`
-- [ ] T3. Wire `mod_event_qrscan.php`: `defined('_JEXEC') or die`, EB bootstrap + `getConfig()->checkin_api_key` (guarded; human-readable error + stop if empty/absent), build full URL via `Route::_()` with task `scan.qr_code_checkin`, `addScriptOptions(checkinUrl, checkInInterval, ticketMaxLength, successAudioUrl, failAudioUrl, textSuccessClass, textWarningClass)` (exact keys per `contracts/module-params.md`), `ModuleHelper::getLayoutPath('mod_event_qrscan', ...)`
-- [ ] T4. `php -l` all PHP files — must pass
+- [X] T1. Create module layout (`mod_event_qrscan.php`, `tmpl/default.php`, `Helper/EventQrscanHelper.php`, `language/en-GB/*.ini|sys.ini`, `js/`, `update/`, `LICENSE`, `README.md`) mirroring Event-summary structure
+- [X] T2. Author `update/mod_event_qrscan.xml` SOURCE manifest with `checkin_interval=2000`, `ticket_max_length=32`, Bootstrap text-utility classes (`text_success_class=text-success`, `text_warning_class=text-danger`, no module CSS, FR-6 styling), `layout`; namespace + `<version>{VERSION}` placeholder (no URL/key/sound params — these come from EB `getConfig()`); built artifact root `mod_event_qrscan.xml` is stamped by `build.py`, do not edit directly
+- [X] T2b. Author `update/event_qrscan_update.xml` template with required nodes (`name`, `version` with `{VERSION}` placeholder, `infourl`, `downloads><downloadurl` pointing to `mod_event_qrscan.zip`, `sha256`) — built by `build.py` T13 via `{VERSION}` substitution; see `contracts/update-xml.md`
+- [X] T3. Wire `mod_event_qrscan.php`: `defined('_JEXEC') or die`, EB bootstrap + `getConfig()->checkin_api_key` (guarded; human-readable error + stop if empty/absent), build full URL via `Route::_()` with task `scan.qr_code_checkin`, `addScriptOptions(checkinUrl, checkInInterval, ticketMaxLength, successAudioUrl, failAudioUrl, textSuccessClass, textWarningClass)` (exact keys per `contracts/module-params.md`), `ModuleHelper::getLayoutPath('mod_event_qrscan', ...)`
+- [X] T4. `php -l` all PHP files — must pass
 
 ## Phase 2 — Template + Bootstrap modal
 
@@ -21,7 +21,7 @@ Module project root is separate from this reference repo; paths below are module
 - [ ] T7. Implement scanner using `js/html5-qrcode.min.js` from `@taluks/html5-qrcode` on the low-level `Html5Qrcode` class (not `Html5QrcodeScanner`): constructor `{ formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }`, start `{ fps: 1, qrbox: 250×250, disableFlip: true }` (native detector default-on); back-camera default (`facingMode exact environment` → label match → first; persist `deviceId` in `localStorage`), cycle button via `stop()`+`start()`, `sessionStorage` dedup (`checkInInterval`, default 2000, FR-11), `visibilitychange` suspend/resume (FR-11); URL builder per T9 / `contracts/checkin-api.md`
 - [ ] T8. (FR-9) Alphanumeric + length (1..32 default, configurable max) pre-validation; missing check-in URL → error text, no scanner; `onScanFailure` no-op
 - [ ] T9. (FR-10 audio) `Joomla.request` success → escaped `message` into `.modal-body` + `bootstrap.Modal.show()` + audio (`media/com_eventbooking/audios/success.mp3` iff `success:true`, else `fail.mp3` — incl. validation/network errors; guard `Audio` errors → silent); error path → friendly modal (no `alert()`); implement FR8 lock: `isProcessing` flag + guarded `pause(true)`/`resume()` per `research.md` R9, cleared on modal dismiss
-- [ ] T10. `node --check js/*.js` — must pass
+- [ ] T10. `node --check js/site-checkin-default.js` — must pass (NOT vendored `js/html5-qrcode.min.js`)
 
 ## Phase 4 — Build + release automation
 
