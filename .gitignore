@@ -1,5 +1,5 @@
-*.zip
-mod_event_qrscan.zip
+# Build artifacts - keep tracked for headless deployment
+# *.zip
 js/site-checkin-default.min.js
 __pycache__/
 *.pyc
