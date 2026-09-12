@@ -2,11 +2,11 @@
 <updates>
 	<update>
 		<name>mod_event_qrscan</name>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 		<infourl>https://example.com</infourl>
 		<downloads>
 			<downloadurl type="full" format="zip" url="https://example.com/mod_event_qrscan.zip">mod_event_qrscan.zip</downloadurl>
 		</downloads>
-		<sha256>bfa3ffb00687c07d1f0da4958ee796dc070f861e82cb58df63568b3a1e03771a</sha256>
+		<sha256>40dbdd5bafbbe6be520803e704b76d83e361c2a5c230ddb6b12282914089ec75</sha256>
 	</update>
 </updates>
