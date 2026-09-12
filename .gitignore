@@ -1,12 +1,55 @@
 *.zip
+mod_event_qrscan.zip
 *.min.js
+js/html5-qrcode.min.js
 __pycache__/
+*.pyc
+*.pyo
+__pycache__
 dump_eb_config*.php
 txt.out
 out.txt
 .DS_Store
+.env
+.env.*
+vendor/
+node_modules/
+dist/
+build/
+*.log
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
 
 #speckit session files
-./specify/feature.json
+.specify/feature.json
+.specify/init-options.json
+.specify/integration.json
 
+# Reference files (kept for development, not packaged)
 
+# Python build script
+# *.egg-info/
+
+# Joomla specifics
+administrator/
+cache/
+logs/
+tmp/
+components/
+modules/
+plugins/
+templates/
+images/
+libraries/
+media/mod_event_qrscan/
+
+# Test and coverage
+coverage/
+*.test.js
+*.spec.js
+tests/
+
+# CI workflow
