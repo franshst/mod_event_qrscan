@@ -1,0 +1,12 @@
+*.zip
+*.min.js
+__pycache__/
+dump_eb_config*.php
+txt.out
+out.txt
+.DS_Store
+
+#speckit session files
+./specify/feature.json
+
+
