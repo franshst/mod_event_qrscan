@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).parent
+REPO = "franshst/mod_event_qrscan"
 
 
 def fail(msg):
@@ -88,6 +89,9 @@ def step3_stamp_manifest(version):
     root = tree.getroot()
     version_elem = root.find('version')
     version_elem.text = version
+    infourl = root.find('infourl')
+    if infourl is not None:
+        infourl.text = f'https://github.com/franshst/mod_event_qrscan'
     tree.write(str(ROOT / 'mod_event_qrscan.xml'), encoding='utf-8', xml_declaration=True)
     print(f"  Stamp manifest: {version}")
 
@@ -135,15 +139,17 @@ def step6_update_xml(version):
     src = ROOT / 'update' / 'event_qrscan_update.xml'
     tree = ET.parse(src)
     root = tree.getroot()
+    download_url = f'https://github.com/{REPO}/releases/download/{version}/mod_event_qrscan_{version}.zip'
     for update in root.findall('update'):
         v = update.find('version')
         if v is not None:
             v.text = version
-        d = update.find('downloadurl')
+        d = update.find('.//downloadurl')
         if d is not None:
             d.text = f'mod_event_qrscan_{version}.zip'
+            d.set('https', download_url)
     tree.write(str(ROOT / 'event_qrscan_update.xml'), encoding='utf-8', xml_declaration=True)
-    print(f"  Update XML: {version}")
+    print(f"  Update XML: {version} -> {download_url}")
 
 
 def step7_checksums(zip_path, version):
@@ -158,6 +164,10 @@ def step7_checksums(zip_path, version):
     sha_elem = root.find('update/sha256')
     if sha_elem is not None:
         sha_elem.text = sha256
+    download_url = f'https://github.com/{REPO}/releases/download/{version}/mod_event_qrscan_{version}.zip'
+    d = root.find('update/downloadurl')
+    if d is not None:
+        d.set('https', download_url)
     update_xml.write(str(ROOT / 'event_qrscan_update.xml'), encoding='utf-8', xml_declaration=True)
     print("  Checksums updated in update XML")
 
