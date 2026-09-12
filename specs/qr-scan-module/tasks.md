@@ -13,27 +13,27 @@ Module project root is separate from this reference repo; paths below are module
 
 ## Phase 2 — Template + Bootstrap modal
 
-- [ ] T5. `tmpl/default.php`: `div#reader`, aim instruction line ("Hold the ticket code inside the square"), custom Start/Stop + "Switch camera" buttons, Bootstrap modal via `HTMLHelper::_('bootstrap.modal')` / `renderModal(id=qrscanModal)` with `data-bs-dismiss` Close (no `Html5QrcodeScanner` widget UI); fallback (FR-6/FR-7): if `bootstrap.Modal` is unavailable, render result text in an inline div instead (single visible surface at a time)
+- [X] T5. `tmpl/default.php`: `div#reader`, aim instruction line ("Hold the ticket code inside the square"), custom Start/Stop + "Switch camera" buttons, Bootstrap modal via `HTMLHelper::_('bootstrap.modal')` / `renderModal(id=qrscanModal)` with `data-bs-dismiss` Close (no `Html5QrcodeScanner` widget UI); fallback (FR-6/FR-7): if `bootstrap.Modal` is unavailable, render result text in an inline div instead (single visible surface at a time)
 
 ## Phase 3 — JavaScript scanner
 
-- [ ] T7a. Clone `@taluks/html5-qrcode` 2.3.9 from https://github.com/taluks/html5-qrcode into `js/html5-qrcode.min.js` (direct file inclusion — NOT npm); record version + sha256 in `README.md`. The file will be placed in the Joomla media directory (`media/mod_event_qrscan/js/`) alongside the module.
-- [ ] T7. Implement scanner using `js/html5-qrcode.min.js` from `@taluks/html5-qrcode` on the low-level `Html5Qrcode` class (not `Html5QrcodeScanner`): constructor `{ formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }`, start `{ fps: 1, qrbox: 250×250, disableFlip: true }` (native detector default-on); back-camera default (`facingMode exact environment` → label match → first; persist `deviceId` in `localStorage`), cycle button via `stop()`+`start()`, `sessionStorage` dedup (`checkInInterval`, default 2000, FR-11), `visibilitychange` suspend/resume (FR-11); URL builder per T9 / `contracts/checkin-api.md`
-- [ ] T8. (FR-9) Alphanumeric + length (1..32 default, configurable max) pre-validation; missing check-in URL → error text, no scanner; `onScanFailure` no-op
-- [ ] T9. (FR-10 audio) `Joomla.request` success → escaped `message` into `.modal-body` + `bootstrap.Modal.show()` + audio (`media/com_eventbooking/audios/success.mp3` iff `success:true`, else `fail.mp3` — incl. validation/network errors; guard `Audio` errors → silent); error path → friendly modal (no `alert()`); implement FR8 lock: `isProcessing` flag + guarded `pause(true)`/`resume()` per `research.md` R9, cleared on modal dismiss
-- [ ] T10. `node --check js/site-checkin-default.js` — must pass (NOT vendored `js/html5-qrcode.min.js`)
+- [X] T7a. Clone `@taluks/html5-qrcode` 2.3.9 from https://github.com/taluks/html5-qrcode into `js/html5-qrcode.min.js` (direct file inclusion — NOT npm); record version + sha256 in `README.md`. The file will be placed in the Joomla media directory (`media/mod_event_qrscan/js/`) alongside the module.
+- [X] T7. Implement scanner using `js/html5-qrcode.min.js` from `@taluks/html5-qrcode` on the low-level `Html5Qrcode` class (not `Html5QrcodeScanner`): constructor `{ formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }`, start `{ fps: 1, qrbox: 250×250, disableFlip: true }` (native detector default-on); back-camera default (`facingMode exact environment` → label match → first; persist `deviceId` in `localStorage`), cycle button via `stop()`+`start()`, `sessionStorage` dedup (`checkInInterval`, default 2000, FR-11), `visibilitychange` suspend/resume (FR-11); URL builder per T9 / `contracts/checkin-api.md`
+- [X] T8. (FR-9) Alphanumeric + length (1..32 default, configurable max) pre-validation; missing check-in URL → error text, no scanner; `onScanFailure` no-op
+- [X] T9. (FR-10 audio) `Joomla.request` success → escaped `message` into `.modal-body` + `bootstrap.Modal.show()` + audio (`media/com_eventbooking/audios/success.mp3` iff `success:true`, else `fail.mp3` — incl. validation/network errors; guard `Audio` errors → silent); error path → friendly modal (no `alert()`); implement FR8 lock: `isProcessing` flag + guarded `pause(true)`/`resume()` per `research.md` R9, cleared on modal dismiss
+- [X] T10. `node --check js/site-checkin-default.js` — must pass (NOT vendored `js/html5-qrcode.min.js`)
 
 ## Phase 4 — Build + release automation
 
-- [ ] T11. Port Event-summary `build.py` → `python build.py <semver>`: first verify vendored-lib gate (step 1b), then `php -l`, `node --check js/site-checkin-default.js`, `uglifyjs js/site-checkin-default.js -o js/site-checkin-default.min.js`, `ET.parse` all XMLs, manifest required-field + semver check. EXCLUDE `js/html5-qrcode.min.js` from all minify, lint, and delete steps — it is cloned pre-minified and included as-is.
-- [ ] T12. Implement ZIP step (`tmpl/, language/, Helper/, js/` + manifest + `*.php` + `LICENSE`) + completeness assert (required entries, no temp/template leak)
-- [ ] T13. Implement `{VERSION}` substitution + `sha256(zip)` → `<sha256>` (print sha256 + md5 informational)
-- [ ] T14. Add `.github/workflows` job running `build.py` on push (same gates)
+- [X] T11. Port Event-summary `build.py` → `python build.py <semver>`: first verify vendored-lib gate (step 1b), then `php -l`, `node --check js/site-checkin-default.js`, `uglifyjs js/site-checkin-default.js -o js/site-checkin-default.min.js`, `ET.parse` all XMLs, manifest required-field + semver check. EXCLUDE `js/html5-qrcode.min.js` from all minify, lint, and delete steps — it is cloned pre-minified and included as-is.
+- [X] T12. Implement ZIP step (`tmpl/, language/, Helper/, js/` + manifest + `*.php` + `LICENSE`) + completeness assert (required entries, no temp/template leak)
+- [X] T13. Implement `{VERSION}` substitution + `sha256(zip)` → `<sha256>` (print sha256 + md5 informational)
+- [X] T14. Add `.github/workflows` job running `build.py` on push (same gates)
 
 ## Phase 5 — Validation
 
-- [ ] T15. Run `python build.py 1.0.0` → exit 0, `mod_event_qrscan.zip` + `event_qrscan_update.xml` + hashes (per `contracts/build.md`)
-- [ ] T16. Manual Joomla 5 checklist per `quickstart.md`: install (EB present), place, verify EB-resolved endpoint + sounds, camera cycle, sample QR scan (modal <1s + EB success sound — NOTE: scan timing <1s is out of scope of this first implementation as it depends on lighting/camera quality), negatives incl. EB fail sound with specific messages — no camera → "No camera available."; offline → "No network, check-in service unavailable"; invalid QR → "This seems not to be a ticket QR code"; bad key → check-in module's own message; EB absent → "Error while communicating with check-in service, error code is %s" (FR8 lock: second QR during open modal sends no request — verify single request in devtools Network), dedup (rescan same code <2 s suppressed, after sent) via `&t=`, updater bump test
+- [X] T15. Run `python build.py 1.0.0` → exit 0, `mod_event_qrscan.zip` + `event_qrscan_update.xml` + hashes (per `contracts/build.md`)
+- [X] T16. Manual Joomla 5 checklist per `quickstart.md`: install (EB present), place, verify EB-resolved endpoint + sounds, camera cycle, sample QR scan (modal <1s + EB success sound — NOTE: scan timing <1s is out of scope of this first implementation as it depends on lighting/camera quality), negatives incl. EB fail sound with specific messages — no camera → "No camera available."; offline → "No network, check-in service unavailable"; invalid QR → "This seems not to be a ticket QR code"; bad key → check-in module's own message; EB absent → "Error while communicating with check-in service, error code is %s" (FR8 lock: second QR during open modal sends no request — verify single request in devtools Network), dedup (rescan same code <2 s suppressed, after sent) via `&t=`, updater bump test
 
 ## Done When
 
