@@ -5,6 +5,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Module\ModuleHelper;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
+use Joomla\Registry\Registry;
 
 require_once JPATH_ADMINISTRATOR . '/components/com_eventbooking/libraries/rad/bootstrap.php';
 
@@ -17,7 +18,7 @@ if (!$config || empty($config->checkin_api_key)) {
 }
 
 $checkinUrl = Route::_('index.php?option=com_eventbooking&task=scan.qr_code_checkin&api_key=' . $config->checkin_api_key);
-$params = $module->params;
+$params = new Registry($module->params);
 $doc = JFactory::getDocument();
 
 $checkInInterval = (int) $params->get('checkin_interval', 2000);

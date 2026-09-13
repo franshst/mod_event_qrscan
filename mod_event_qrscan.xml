@@ -8,7 +8,7 @@
 	<infourl type="developer">https://github.com/franshst/mod_event_qrscan</infourl>
 	<authorEmail>admin@example.com</authorEmail>
 	<authorUrl>https://github.com/franshst/mod_event_qrscan</authorUrl>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<description>MOD_EVENT_QRSCAN_XML_DESCRIPTION</description>
 	<namespace>EventQRScan</namespace>
 	<files>
