@@ -34,5 +34,7 @@ $doc->addScriptOptions('successAudioUrl', 'media/com_eventbooking/audios/success
 $doc->addScriptOptions('failAudioUrl', 'media/com_eventbooking/audios/fail.mp3');
 $doc->addScriptOptions('textSuccessClass', $textSuccessClass);
 $doc->addScriptOptions('textWarningClass', $textWarningClass);
+$doc->addScript('media/mod_event_qrscan/js/html5-qrcode.min.js');
+$doc->addScript('media/mod_event_qrscan/js/site-checkin-default.js');
 
 require ModuleHelper::getLayoutPath('mod_event_qrscan', $layout);
