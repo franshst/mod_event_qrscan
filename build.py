@@ -102,8 +102,8 @@ def step4_create_zip(version):
         shutil.rmtree(tmp_dir)
     tmp_dir.mkdir()
 
-    folders = ['tmpl', 'language', 'Helper', 'js', 'update']
-    files = ['mod_event_qrscan.php', 'mod_event_qrscan.xml', 'LICENSE']
+    folders = ['tmpl', 'language', 'Helper', 'js']
+    files = ['mod_event_qrscan.php', 'mod_event_qrscan.xml', 'LICENSE', 'index.html']
 
     for folder in folders:
         src = ROOT / folder

@@ -1,5 +1,5 @@
 # Build artifacts - keep tracked for headless deployment
-# *.zip
+*.zip
 js/site-checkin-default.min.js
 __pycache__/
 *.pyc

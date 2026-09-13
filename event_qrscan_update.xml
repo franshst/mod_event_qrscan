@@ -7,6 +7,6 @@
 		<downloads>
 			<downloadurl type="full" format="zip" https="https://github.com/franshst/mod_event_qrscan/releases/download/1.0.3/mod_event_qrscan_1.0.3.zip">mod_event_qrscan_1.0.3.zip</downloadurl>
 		</downloads>
-		<sha256>de1d57f123d7601e96e134f5d50754229998a79c6bb1f252b66686418bccb003</sha256>
+		<sha256>bfe33c3490fbf3df67c6221f98060425520fa6737dffb2c69db8cd5829080b63</sha256>
 	</update>
 </updates>
