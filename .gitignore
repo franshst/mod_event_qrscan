@@ -1,7 +1,7 @@
 # Build artifacts
 *.zip
-mod_event_qrscan.xml
-event_qrscan_update.xml
+/mod_event_qrscan.xml
+/event_qrscan_update.xml
 js/site-checkin-default.min.js
 __pycache__/
 *.pyc
