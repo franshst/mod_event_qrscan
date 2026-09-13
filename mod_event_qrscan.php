@@ -2,7 +2,7 @@
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Module\ModuleHelper;
+use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
