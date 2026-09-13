@@ -74,6 +74,12 @@ This feature provides a web-based QR scan module for event volunteers to check t
 5. Network latency is within acceptable limits
 6. User has basic computer literacy
 
+## Clarifications
+
+### Session 2026-09-13
+
+- Q: How is JS minification handled? → A: Minification is done when releasing on GitHub with a workflow script (not by `build.py`). `build.yml` installs `uglify-js` for this purpose.
+
 ## Notes
 
 - Mobile phone camera (default: Back camera)

@@ -38,3 +38,12 @@ Module project root is separate from this reference repo; paths below are module
 ## Done When
 
 - [ ] All boxes checked; `build.py` green; manual table filled; updater finds new version
+
+## Phase 6 — Convergence
+
+- [X] T017 Implement scanner initialization: add `new Html5Qrcode("reader")`, `scanner.start({facingMode, fps:1, qrbox:250×250, disableFlip:true})`, `scanner.stop()`, `getCameras()` label match with `localStorage` deviceId persistence, and Start/Stop/Switch-camera button event handlers to `js/site-checkin-default.js` per FR-3/FR-4/T7
+- [X] T018 Add JS `EventQrscanHelper` object with `validateTicketCode(text, maxLength)` and `getErrorMessage(case)` functions to `js/site-checkin-default.js` so calls from `onScanSuccess` resolve (currently calls a non-existent JS object) per FR-7/T8/T9
+- [X] T019 Implement `isProcessing` flag and `pause(true)`/`resume()` via `getState()` in `js/site-checkin-default.js`: `onScanSuccess` returns immediately while `isProcessing===true`, sets flag to true, pauses decoder when scanning starts, clears and resumes when modal is dismissed per FR-8/T9
+- [X] T020 Implement `visibilitychange` suspend/resume handler in `js/site-checkin-default.js`: `document.visibilitychange` pauses scanner when hidden, resumes when visible, guarded by `getState()`, per FR-11/T7/T9
+- [X] T021 build.py has no `minify_js()`/`uglifyjs` step — minification is handled by the GitHub release workflow (`build.yml` installs `uglify-js`); `site-checkin-default.min.js` is not produced by `build.py` per T11
+- [X] T022 Confirmed `js/zxing_reader.wasm` and `js/index.html` are required by `@taluks/html5-qrcode` library and are included in the Joomla media directory per task T7a
