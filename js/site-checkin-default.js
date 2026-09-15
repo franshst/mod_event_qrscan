@@ -95,6 +95,11 @@
 	function startScanner(deviceId) {
 		if (!scanner) return;
 		setStartButtonLabel(stopLabel);
+		try {
+			scanner.stop().catch(function () {});
+		} catch (e) {
+			/* ignore */
+		}
 		var cameraConfig = {};
 		if (deviceId) {
 			cameraConfig = { deviceId: { exact: deviceId } };
