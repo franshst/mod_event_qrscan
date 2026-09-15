@@ -19,6 +19,9 @@
 		<folder>language</folder>
 		<folder>js</folder>
 	</files>
+	<updateservers>
+		<server type="collection" priority="1" name="Mod Event QR Scan">https://github.com/franshst/mod_event_qrscan/releases/latest/download/event_qrscan_update.xml</server>
+	</updateservers>
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
