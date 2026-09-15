@@ -68,9 +68,7 @@
 
 	function getCameraDeviceId(camera) {
 		var id = camera.id || camera.deviceId;
-		var label = camera.label || '';
-		var match = label.match(/\(([^)]+)\)/);
-		return match ? match[1] : id;
+		return id;
 	}
 
 	function getCameraLabel(camera) {
