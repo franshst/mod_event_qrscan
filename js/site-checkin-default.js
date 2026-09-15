@@ -275,16 +275,16 @@
 		var modalElement = document.getElementById('qrscanModal');
 		if (modalElement) {
 			modalElement.addEventListener('hidden.bs.modal', function () {
+				if (!isProcessing) return;
 				isProcessing = false;
 				if (scanner) {
 					try {
-						scanner.stop().catch(function () {});
+						if (typeof scanner.getState === 'function' && scanner.getState() === Html5QrcodeScannerState.PAUSED) {
+							scanner.resume();
+						}
 					} catch (e) {
 						/* ignore */
 					}
-					setTimeout(function () {
-						startScanner(null);
-					}, 200);
 				}
 			});
 		}
