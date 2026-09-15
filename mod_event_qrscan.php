@@ -23,15 +23,20 @@ if (!class_exists('EventbookingHelper') || !method_exists('EventbookingHelper', 
     return;
 }
 
-$app = JFactory::getApplication();
-$config = EventbookingHelper::getConfig();
+	$app = JFactory::getApplication();
+	$config = EventbookingHelper::getConfig();
 
-if (!$config || empty($config->checkin_api_key)) {
-	echo '<p>' . JText::_('MOD_EVENT_QRSCAN_ERROR_CHECKIN_CONFIG') . '</p>';
-	return;
-}
+	if (!$config) {
+		echo '<p>' . JText::_('MOD_EVENT_QRSCAN_ERROR_CHECKIN_CONFIG') . '</p>';
+		return;
+	}
+	$apiKey = method_exists($config, 'get') ? $config->get('checkin_api_key') : $config->checkin_api_key;
+	if (empty($apiKey)) {
+		echo '<p>' . JText::_('MOD_EVENT_QRSCAN_ERROR_CHECKIN_CONFIG') . '</p>';
+		return;
+	}
 
-$checkinUrl = Route::_('index.php?option=com_eventbooking&task=scan.qr_code_checkin&api_key=' . $config->checkin_api_key);
+$checkinUrl = Route::_('index.php?option=com_eventbooking&task=scan.qr_code_checkin&api_key=' . $apiKey);
 $params = new Registry($module->params);
 $doc = JFactory::getDocument();
 
