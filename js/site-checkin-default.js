@@ -92,20 +92,54 @@
 		return match ? match[1] : label;
 	}
 
+	function isPermissionError(error) {
+		var text = '';
+		if (error) {
+			text += (error.name || '') + ' ' + (error.message || '') + ' ' + String(error);
+		}
+		return /denied|permission|secure/i.test(text);
+	}
+
 	function startScanner(deviceId) {
 		if (!scanner) return;
 		setStartButtonLabel(stopLabel);
-		var cameraConfig = {};
-		if (deviceId) {
-			cameraConfig = { deviceId: { exact: deviceId } };
-		} else if (currentCameraIndex === 0) {
-			cameraConfig = { facingMode: { exact: 'environment' } };
+		var candidates = [];
+		function addDeviceCandidate(id) {
+			if (!id) return;
+			var duplicate = candidates.some(function (c) { return c.deviceId && c.deviceId.exact === id; });
+			if (!duplicate) {
+				candidates.push({ deviceId: { exact: id } });
+			}
 		}
+		addDeviceCandidate(deviceId);
+		if (cameras.length > 0 && currentCameraIndex < cameras.length) {
+			addDeviceCandidate(getCameraDeviceId(cameras[currentCameraIndex]));
+		}
+		if (cameras.length > 0) {
+			addDeviceCandidate(getCameraDeviceId(cameras[0]));
+		}
+		candidates.push({ facingMode: { exact: 'environment' } });
 		var efficiencyConfig = { fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true };
-		scanner.start(cameraConfig, efficiencyConfig, onScanSuccess, onScanFailure).catch(function(error) {
+		function showNoCamera() {
 			showModal(EventQrscanHelper.getErrorMessage('no_camera'), 'warning');
 			playSound(false);
-		});
+		}
+		function tryCandidate(index) {
+			if (index >= candidates.length) {
+				showNoCamera();
+				return;
+			}
+			scanner.start(candidates[index], efficiencyConfig, onScanSuccess, onScanFailure).then(function () {
+				/* scanning */
+			}).catch(function (error) {
+				if (isPermissionError(error)) {
+					showNoCamera();
+					return;
+				}
+				tryCandidate(index + 1);
+			});
+		}
+		tryCandidate(0);
 	}
 
 	function stopScanner() {
