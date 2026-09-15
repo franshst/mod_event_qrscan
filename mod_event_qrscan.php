@@ -53,6 +53,8 @@ $doc->addScriptOptions('successAudioUrl', 'media/com_eventbooking/audios/success
 $doc->addScriptOptions('failAudioUrl', 'media/com_eventbooking/audios/fail.mp3');
 $doc->addScriptOptions('textSuccessClass', $textSuccessClass);
 $doc->addScriptOptions('textWarningClass', $textWarningClass);
+$doc->addScriptOptions('MOD_EVENT_QRSCAN_START', JText::_('MOD_EVENT_QRSCAN_START'));
+$doc->addScriptOptions('MOD_EVENT_QRSCAN_STOP', JText::_('MOD_EVENT_QRSCAN_STOP'));
 $doc->addScript('modules/mod_event_qrscan/js/html5-qrcode.min.js');
 $doc->addScript('modules/mod_event_qrscan/js/site-checkin-default.js');
 

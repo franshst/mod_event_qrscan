@@ -15,6 +15,16 @@
 	let currentCameraIndex = 0;
 	let cameras = [];
 
+	const startLabel = Joomla.getOptions('MOD_EVENT_QRSCAN_START', 'Start');
+	const stopLabel = Joomla.getOptions('MOD_EVENT_QRSCAN_STOP', 'Stop');
+
+	function setStartButtonLabel(label) {
+		var btn = document.getElementById('start-stop-btn');
+		if (btn) {
+			btn.textContent = label;
+		}
+	}
+
 	function showModal(message, type) {
 		const modalBody = document.querySelector('.modal-body');
 		if (!modalBody) return;
@@ -80,6 +90,7 @@
 
 	function startScanner(deviceId) {
 		if (!scanner) return;
+		setStartButtonLabel(stopLabel);
 		var cameraConfig = {};
 		if (deviceId) {
 			cameraConfig = { deviceId: { exact: deviceId } };
@@ -94,6 +105,7 @@
 	}
 
 	function stopScanner() {
+		setStartButtonLabel(startLabel);
 		if (!scanner) return;
 		try {
 			scanner.stop().catch(function () {});
@@ -281,10 +293,9 @@
 			return;
 		}
 
-		loadCameraPreferences().then(function (deviceId) {
-			startScanner(deviceId);
-		}).catch(function () {
-			startScanner(null);
+		loadCameraPreferences().catch(function () {
+			// Camera preferences loaded, scanner waits for Start button
 		});
+		setStartButtonLabel(startLabel);
 	});
 })(document, Joomla);
