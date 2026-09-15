@@ -14,6 +14,7 @@
 	let isProcessing = false;
 	let currentCameraIndex = 0;
 	let cameras = [];
+	let modalInstance = null;
 
 	const startLabel = Joomla.getOptions('MOD_EVENT_QRSCAN_START', 'Start');
 	const stopLabel = Joomla.getOptions('MOD_EVENT_QRSCAN_STOP', 'Stop');
@@ -32,8 +33,10 @@
 		modalBody.className = 'modal-body ' + (type === 'success' ? textSuccessClass : textWarningClass);
 		const modalElement = document.getElementById('qrscanModal');
 		if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-			const modal = new bootstrap.Modal(modalElement);
-			modal.show();
+			if (!modalInstance) {
+				modalInstance = new bootstrap.Modal(modalElement);
+			}
+			modalInstance.show();
 		} else {
 			const reader = document.getElementById('reader');
 			if (reader) {
@@ -41,6 +44,7 @@
 				fallback.className = type === 'success' ? textSuccessClass : textWarningClass;
 				fallback.textContent = message;
 				reader.parentNode.replaceChild(fallback, reader);
+				isProcessing = false;
 			}
 		}
 	}
@@ -209,30 +213,10 @@
 					showModal(EventQrscanHelper.getErrorMessage('invalid_qr'), 'warning');
 					playSound(false);
 				}
-				isProcessing = false;
-				if (scanner) {
-					try {
-						if (typeof scanner.getState === 'function' && scanner.getState() === Html5QrcodeScannerState.PAUSED) {
-							scanner.resume();
-						}
-					} catch (e) {
-						/* ignore */
-					}
-				}
 			},
 			onError: function () {
 				showModal(EventQrscanHelper.getErrorMessage('offline'), 'warning');
 				playSound(false);
-				isProcessing = false;
-				if (scanner) {
-					try {
-						if (typeof scanner.getState === 'function' && scanner.getState() === Html5QrcodeScannerState.PAUSED) {
-							scanner.resume();
-						}
-					} catch (e) {
-						/* ignore */
-					}
-				}
 			}
 		});
 	}
@@ -287,6 +271,22 @@
 		document.getElementById('switch-camera-btn').addEventListener('click', cycleCamera);
 
 		document.addEventListener('visibilitychange', handleVisibilityChange);
+
+		var modalElement = document.getElementById('qrscanModal');
+		if (modalElement) {
+			modalElement.addEventListener('hidden.bs.modal', function () {
+				isProcessing = false;
+				if (scanner) {
+					try {
+						if (typeof scanner.getState === 'function' && scanner.getState() === Html5QrcodeScannerState.PAUSED) {
+							scanner.resume();
+						}
+					} catch (e) {
+						/* ignore */
+					}
+				}
+			});
+		}
 
 		if (!checkinUrl) {
 			showModal(EventQrscanHelper.getErrorMessage('eb_absent'), 'warning');
