@@ -89,7 +89,10 @@
 			cameraConfig = { facingMode: { exact: 'environment' } };
 		}
 		var efficiencyConfig = { fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true };
-		scanner.start(cameraConfig, efficiencyConfig, onScanSuccess, onScanFailure);
+		scanner.start(cameraConfig, efficiencyConfig, onScanSuccess, onScanFailure).catch(function(error) {
+			showModal(EventQrscanHelper.getErrorMessage('no_camera'), 'warning');
+			playSound(false);
+		});
 	}
 
 	function stopScanner() {
@@ -140,8 +143,12 @@
 					currentCameraIndex = cameras.indexOf(envMatch);
 					return getCameraDeviceId(cameras[currentCameraIndex]);
 				}
-			}
-			return null;
+		}
+		if (cameras.length > 0) {
+			currentCameraIndex = 0;
+			return getCameraDeviceId(cameras[0]);
+		}
+		return null;
 		}).catch(function () {
 			cameras = [];
 			return null;
