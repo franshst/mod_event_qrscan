@@ -95,11 +95,6 @@
 	function startScanner(deviceId) {
 		if (!scanner) return;
 		setStartButtonLabel(stopLabel);
-		try {
-			scanner.stop().catch(function () {});
-		} catch (e) {
-			/* ignore */
-		}
 		var cameraConfig = {};
 		if (deviceId) {
 			cameraConfig = { deviceId: { exact: deviceId } };
@@ -283,12 +278,13 @@
 				isProcessing = false;
 				if (scanner) {
 					try {
-						if (typeof scanner.getState === 'function' && scanner.getState() === Html5QrcodeScannerState.PAUSED) {
-							scanner.resume();
-						}
+						scanner.stop().catch(function () {});
 					} catch (e) {
 						/* ignore */
 					}
+					setTimeout(function () {
+						startScanner(null);
+					}, 200);
 				}
 			});
 		}
