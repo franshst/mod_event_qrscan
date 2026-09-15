@@ -82,14 +82,14 @@
 
 	function startScanner(deviceId) {
 		if (!scanner) return;
-		var startConfig = { formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] };
-		var videoConfig = {};
+		var cameraConfig = {};
 		if (deviceId) {
-			videoConfig = { deviceId: { exact: deviceId } };
+			cameraConfig = { deviceId: { exact: deviceId } };
 		} else if (currentCameraIndex === 0) {
-			videoConfig = { facingMode: { exact: 'environment' } };
+			cameraConfig = { facingMode: { exact: 'environment' } };
 		}
-		scanner.start(startConfig, videoConfig, onScanSuccess, onScanFailure);
+		var efficiencyConfig = { fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true };
+		scanner.start(cameraConfig, efficiencyConfig, onScanSuccess, onScanFailure);
 	}
 
 	function stopScanner() {

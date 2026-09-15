@@ -7,7 +7,21 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 
-require_once JPATH_ADMINISTRATOR . '/components/com_eventbooking/libraries/rad/bootstrap.php';
+$ebBootstrap = JPATH_ADMINISTRATOR . '/components/com_eventbooking/libraries/rad/bootstrap.php';
+if (!file_exists($ebBootstrap)) {
+    echo '<p>' . JText::_('MOD_EVENT_QRSCAN_ERROR_CHECKIN_CONFIG') . '</p>';
+    return;
+}
+try {
+    require_once $ebBootstrap;
+} catch (\Throwable $e) {
+    echo '<p>' . JText::_('MOD_EVENT_QRSCAN_ERROR_CHECKIN_CONFIG') . '</p>';
+    return;
+}
+if (!class_exists('EventbookingHelper') || !method_exists('EventbookingHelper', 'getConfig')) {
+    echo '<p>' . JText::_('MOD_EVENT_QRSCAN_ERROR_CHECKIN_CONFIG') . '</p>';
+    return;
+}
 
 $app = JFactory::getApplication();
 $config = EventbookingHelper::getConfig();
@@ -34,7 +48,7 @@ $doc->addScriptOptions('successAudioUrl', 'media/com_eventbooking/audios/success
 $doc->addScriptOptions('failAudioUrl', 'media/com_eventbooking/audios/fail.mp3');
 $doc->addScriptOptions('textSuccessClass', $textSuccessClass);
 $doc->addScriptOptions('textWarningClass', $textWarningClass);
-$doc->addScript('media/mod_event_qrscan/js/html5-qrcode.min.js');
-$doc->addScript('media/mod_event_qrscan/js/site-checkin-default.js');
+$doc->addScript('modules/mod_event_qrscan/js/html5-qrcode.min.js');
+$doc->addScript('modules/mod_event_qrscan/js/site-checkin-default.js');
 
 require ModuleHelper::getLayoutPath('mod_event_qrscan', $layout);

@@ -47,3 +47,14 @@ Module project root is separate from this reference repo; paths below are module
 - [X] T020 Implement `visibilitychange` suspend/resume handler in `js/site-checkin-default.js`: `document.visibilitychange` pauses scanner when hidden, resumes when visible, guarded by `getState()`, per FR-11/T7/T9
 - [X] T021 build.py has no `minify_js()`/`uglifyjs` step — minification is handled by the GitHub release workflow (`build.yml` installs `uglify-js`); `site-checkin-default.min.js` is not produced by `build.py` per T11
 - [X] T022 Confirmed `js/zxing_reader.wasm` and `js/index.html` are required by `@taluks/html5-qrcode` library and are included in the Joomla media directory per task T7a
+
+## Phase 7: Convergence
+
+- [X] T023 Fix 404 for html5-qrcode.min.js: resolve path mismatch where `mod_event_qrscan.php` references `media/mod_event_qrscan/js/...` but manifest installs JS to `modules/mod_event_qrscan/js/` per plan §3.4 / spec FR-3 (contradicts)
+- [X] T024 Guard EB bootstrap in `mod_event_qrscan.php`: wrap `require_once` for EB bootstrap with `file_exists` check and try/catch so absent EB shows graceful error per plan §3.2 / spec FR-7 / SC-5 (contradicts)
+- [X] T025 Add FR-4 efficiency config to scanner `start()`: include `fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true` in `startScanner()` start options in `js/site-checkin-default.js` per spec FR-4 / plan §3.1 / T017 (missing)
+
+## Phase 8: Convergence
+
+- [X] T026 Fix `scanner.start()` argument order in `js/site-checkin-default.js:83-93` — pass camera config (1 key: `deviceId` or `facingMode`) as 1st arg and efficiency config (`fps`,`qrbox`,`disableFlip`) as 2nd arg instead of swapped positions; this fixes the `cameraIdOrConfig object should have exactly 1 key, found 4 keys` error that prevents all Start/Stop/Switch-camera buttons from working per FR-3/FR-4/T017 (missing, CRITICAL)
+- [X] T027 Remove `formatsToSupport` from `scanner.start()` efficiency config at `js/site-checkin-default.js:85` — `@taluks/html5-qrcode` 2.3.9 `Html5Qrcode` constructor accepts only `verbose`/`experimentalFeatures`, not `formatsToSupport`; QR-only scanning is handled by ZXing (vendored); ensure efficiency config contains only `fps`,`qrbox`,`disableFlip` per plan §3.1 / FR-4 / T017 (partial, HIGH)
