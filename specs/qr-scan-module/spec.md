@@ -78,7 +78,7 @@ This feature provides a web-based QR scan module for event volunteers to check t
 
 ### Session 2026-09-13
 
-- Q: How is JS minification handled? → A: Minification is done when releasing on GitHub with a workflow script (not by `build.py`). `build.yml` installs `uglify-js` for this purpose.
+- Q: How is JS minification handled? → A: Minification is done by `build.py` using `uglify-js` (`uglifyjs js/site-checkin-default.js -o js/site-checkin-default.min.js`). `build.yml` also installs `uglify-js` for CI consistency.
 
 ## Notes
 

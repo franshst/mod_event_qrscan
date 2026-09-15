@@ -76,8 +76,6 @@ The Joomla Update System is configured via `event_qrscan_update.xml`. When a new
 - `uglify-js` (`npm install -g uglify-js`)
 - The vendored library `js/html5-qrcode.min.js` must already exist in the repo (cloned from `@taluks/html5-qrcode` v2.3.9)
 
-### Creating a new release
-
 1. **Verify prerequisites** — ensure all lint gates pass:
    ```bash
    php -l mod_event_qrscan.php

@@ -56,6 +56,6 @@ $doc->addScriptOptions('textWarningClass', $textWarningClass);
 $doc->addScriptOptions('MOD_EVENT_QRSCAN_START', JText::_('MOD_EVENT_QRSCAN_START'));
 $doc->addScriptOptions('MOD_EVENT_QRSCAN_STOP', JText::_('MOD_EVENT_QRSCAN_STOP'));
 $doc->addScript('modules/mod_event_qrscan/js/html5-qrcode.min.js');
-$doc->addScript('modules/mod_event_qrscan/js/site-checkin-default.js');
+$doc->addScript('modules/mod_event_qrscan/js/site-checkin-default.min.js');
 
 require ModuleHelper::getLayoutPath('mod_event_qrscan', $layout);

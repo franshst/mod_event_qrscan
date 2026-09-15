@@ -83,6 +83,25 @@ def step2_lint(version):
     print("  Semver check: OK")
 
 
+def step2b_minify_js(version):
+    import subprocess
+
+    print("  Minify: deleting stale *.min.js (excluding html5-qrcode.min.js)...")
+    for f in ROOT.glob('js/*.min.js'):
+        if f.name != 'html5-qrcode.min.js':
+            f.unlink()
+            print(f"    Removed stale: {f.name}")
+
+    print("  Minify: uglifyjs js/site-checkin-default.js -o js/site-checkin-default.min.js...")
+    result = subprocess.run(['uglifyjs', 'js/site-checkin-default.js', '-o', 'js/site-checkin-default.min.js'],
+                            capture_output=True, text=True, cwd=str(ROOT))
+    if result.returncode != 0:
+        if 'uglifyjs' in result.stderr.lower() or result.returncode == 127:
+            fail("Minify: uglifyjs not found. Install with: npm install -g uglify-js")
+        fail(f"Minify: uglifyjs failed: {result.stderr.strip()}")
+    print("    site-checkin-default.min.js: OK")
+
+
 def step3_stamp_manifest(version):
     src = ROOT / 'update' / 'mod_event_qrscan.xml'
     tree = ET.parse(src)
@@ -126,7 +145,7 @@ def step5_completeness_assert(zip_path):
     import zipfile
     required = ['mod_event_qrscan.php', 'tmpl/default.php',
                 'Helper/EventQrscanHelper.php', 'js/site-checkin-default.js',
-                'js/html5-qrcode.min.js']
+                'js/site-checkin-default.min.js', 'js/html5-qrcode.min.js']
     with zipfile.ZipFile(zip_path, 'r') as zf:
         names = zf.namelist()
         for req in required:
@@ -183,19 +202,22 @@ def main():
     print("\nStep 1: Lint...")
     step2_lint(version)
 
-    print("\nStep 2: Stamp manifest...")
+    print("\nStep 2: Minify JS...")
+    step2b_minify_js(version)
+
+    print("\nStep 3: Stamp manifest...")
     step3_stamp_manifest(version)
 
-    print("\nStep 3: Create ZIP...")
+    print("\nStep 4: Create ZIP...")
     zip_path = step4_create_zip(version)
 
-    print("\nStep 4: ZIP completeness assert...")
+    print("\nStep 5: ZIP completeness assert...")
     step5_completeness_assert(zip_path)
 
-    print("\nStep 5: Update XML...")
+    print("\nStep 6: Update XML...")
     step6_update_xml(version)
 
-    print("\nStep 6: Checksums...")
+    print("\nStep 7: Checksums...")
     step7_checksums(zip_path, version)
 
     print(f"\n=== BUILD SUCCESS: {zip_path} ===\n")
