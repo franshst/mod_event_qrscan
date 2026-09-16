@@ -168,6 +168,7 @@
 		function showNoCamera() {
 			var busy = sawCameraBusy || isCameraBusyError(lastStartError) || isCameraBusyError(lastCameraQueryError);
 			qrscanLog('startScanner', 'all candidates exhausted', 'busy=' + busy);
+			setStartButtonLabel(startLabel);
 			try {
 				Html5Qrcode.getCameras().then(function (recount) {
 					qrscanLog('startScanner', 'post-failure recount', 'found=' + recount.length, 'labels=' + JSON.stringify(recount.map(function (c) { return c.label || ''; })));
