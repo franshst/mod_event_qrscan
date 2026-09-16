@@ -25,6 +25,7 @@
 	let isProcessing = false;
 	let currentCameraIndex = 0;
 	let cameras = [];
+	let lastCameraQueryError = null;
 	let modalInstance = null;
 
 	const startLabel = Joomla.getOptions('MOD_EVENT_QRSCAN_START', 'Start');
@@ -165,7 +166,7 @@
 		var efficiencyConfig = { fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true };
 		qrscanLog('startScanner', 'candidates=' + JSON.stringify(candidates), 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
 		function showNoCamera() {
-			var busy = sawCameraBusy || isCameraBusyError(lastStartError);
+			var busy = sawCameraBusy || isCameraBusyError(lastStartError) || isCameraBusyError(lastCameraQueryError);
 			qrscanLog('startScanner', 'all candidates exhausted', 'busy=' + busy);
 			try {
 				Html5Qrcode.getCameras().then(function (recount) {
@@ -249,6 +250,7 @@
 		}
 		return Html5Qrcode.getCameras().then(function (foundCameras) {
 			cameras = foundCameras;
+			lastCameraQueryError = null;
 			qrscanLog('loadCameraPreferences', 'found=' + cameras.length, 'labels=' + JSON.stringify(cameras.map(function (c) { return c.label || ''; })));
 			if (savedDeviceId) {
 				var matched = cameras.find(function (c) { return getCameraDeviceId(c) === savedDeviceId; });
@@ -270,6 +272,7 @@
 		return null;
 		}).catch(function (err) {
 			qrscanLog('loadCameraPreferences', 'failed', 'reason=' + String((err && err.message) || err || ''));
+			lastCameraQueryError = err;
 			cameras = [];
 			return null;
 		});
