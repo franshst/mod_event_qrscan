@@ -11,7 +11,7 @@
 	const storage = window.sessionStorage;
 
 	/* TEMPORARY-DEBUG: console diagnostics for the "No camera available" issue. Set to false to silence. */
-	var QRSCAN_DEBUG = true;
+	var QRSCAN_DEBUG = false;
 	function qrscanLog() {
 		if (!QRSCAN_DEBUG) return;
 		try {

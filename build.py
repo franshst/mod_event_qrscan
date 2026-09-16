@@ -163,10 +163,24 @@ def step6_update_xml(version):
         v = update.find('version')
         if v is not None:
             v.text = version
+        # Identity tags required for Joomla to match the update to the installed extension
+        for tag, value in [('element', 'mod_event_qrscan'), ('type', 'module'), ('client', 'site')]:
+            elem = update.find(tag)
+            if elem is None:
+                elem = ET.SubElement(update, tag)
+            elem.text = value
+        if update.find('targetplatform') is None:
+            tp = ET.SubElement(update, 'targetplatform')
+            tp.set('name', 'joomla')
+            tp.set('version', '5.*')
         d = update.find('.//downloadurl')
         if d is not None:
-            d.text = f'mod_event_qrscan_{version}.zip'
-            d.set('https', download_url)
+            # Joomla expects the URL as element text, not in a custom attribute
+            d.text = download_url
+            d.set('type', 'full')
+            d.set('format', 'zip')
+            if 'https' in d.attrib:
+                del d.attrib['https']
     tree.write(str(ROOT / 'event_qrscan_update.xml'), encoding='utf-8', xml_declaration=True)
     print(f"  Update XML: {version} -> {download_url}")
 
@@ -186,7 +200,11 @@ def step7_checksums(zip_path, version):
     download_url = f'https://github.com/{REPO}/releases/download/{version}/mod_event_qrscan_{version}.zip'
     d = root.find('update/downloadurl')
     if d is not None:
-        d.set('https', download_url)
+        d.text = download_url
+        d.set('type', 'full')
+        d.set('format', 'zip')
+        if 'https' in d.attrib:
+            del d.attrib['https']
     update_xml.write(str(ROOT / 'event_qrscan_update.xml'), encoding='utf-8', xml_declaration=True)
     print("  Checksums updated in update XML")
 
