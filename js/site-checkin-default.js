@@ -10,6 +10,17 @@
 	const textWarningClass = Joomla.getOptions('textWarningClass');
 	const storage = window.sessionStorage;
 
+	/* TEMPORARY-DEBUG: console diagnostics for the "No camera available" issue. Set to false to silence. */
+	var QRSCAN_DEBUG = true;
+	function qrscanLog() {
+		if (!QRSCAN_DEBUG) return;
+		try {
+			var args = Array.prototype.slice.call(arguments);
+			args.unshift('[qrscan]');
+			window.console.log.apply(window.console, args);
+		} catch (e) { /* ignore */ }
+	}
+
 	let scanner = null;
 	let isProcessing = false;
 	let currentCameraIndex = 0;
@@ -27,6 +38,7 @@
 	}
 
 	function showModal(message, type) {
+		qrscanLog('showModal', 'type=' + type);
 		const modalBody = document.querySelector('.modal-body');
 		if (!modalBody) return;
 		modalBody.textContent = message;
@@ -120,7 +132,9 @@
 		}
 		candidates.push({ facingMode: { exact: 'environment' } });
 		var efficiencyConfig = { fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true };
+		qrscanLog('startScanner', 'candidates=' + JSON.stringify(candidates), 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
 		function showNoCamera() {
+			qrscanLog('startScanner', 'all candidates exhausted');
 			showModal(EventQrscanHelper.getErrorMessage('no_camera'), 'warning');
 			playSound(false);
 		}
@@ -130,8 +144,9 @@
 				return;
 			}
 			scanner.start(candidates[index], efficiencyConfig, onScanSuccess, onScanFailure).then(function () {
-				/* scanning */
+				qrscanLog('startScanner', 'attempt ok', 'config=' + JSON.stringify(candidates[index]));
 			}).catch(function (error) {
+				qrscanLog('startScanner', 'attempt failed', 'config=' + JSON.stringify(candidates[index]), 'error=' + ((error && (error.name + ': ' + error.message)) || String(error)));
 				if (isPermissionError(error)) {
 					showNoCamera();
 					return;
@@ -143,6 +158,7 @@
 	}
 
 	function stopScanner() {
+		qrscanLog('stopScanner', 'called');
 		setStartButtonLabel(startLabel);
 		if (!scanner) return;
 		try {
@@ -179,6 +195,7 @@
 		}
 		return Html5Qrcode.getCameras().then(function (foundCameras) {
 			cameras = foundCameras;
+			qrscanLog('loadCameraPreferences', 'found=' + cameras.length, 'labels=' + JSON.stringify(cameras.map(function (c) { return c.label || ''; })));
 			if (savedDeviceId) {
 				var matched = cameras.find(function (c) { return getCameraDeviceId(c) === savedDeviceId; });
 				if (matched) {
@@ -205,6 +222,7 @@
 
 	function onScanSuccess(decodedText, decodedResult) {
 		if (isProcessing) return;
+		qrscanLog('onScanSuccess', 'len=' + (decodedText || '').length);
 		if (!EventQrscanHelper.validateTicketCode(decodedText, ticketMaxLength)) {
 			showModal(EventQrscanHelper.getErrorMessage('invalid_qr'), 'warning');
 			playSound(false);
@@ -281,12 +299,14 @@
 
 	document.addEventListener('DOMContentLoaded', function () {
 		scanner = new Html5Qrcode('reader');
+		qrscanLog('init', 'checkinUrl=' + (!!checkinUrl), 'bootstrap.Modal=' + (!!(typeof bootstrap !== 'undefined' && bootstrap && bootstrap.Modal)), 'Html5QrcodeScannerState=' + (typeof Html5QrcodeScannerState !== 'undefined'));
 
 		document.getElementById('start-stop-btn').addEventListener('click', function () {
 			if (!scanner) return;
 			try {
 				if (typeof scanner.getState === 'function') {
 					var state = scanner.getState();
+					qrscanLog('start-stop click', 'state=' + state, 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
 					if (state === Html5QrcodeScannerState.SCANNING) {
 						stopScanner();
 					} else {
@@ -309,12 +329,16 @@
 		var modalElement = document.getElementById('qrscanModal');
 		if (modalElement) {
 			modalElement.addEventListener('hidden.bs.modal', function () {
+				qrscanLog('modal hidden', 'isProcessing=' + isProcessing);
 				if (!isProcessing) return;
 				isProcessing = false;
 				if (scanner) {
 					try {
 						if (typeof scanner.getState === 'function' && scanner.getState() === Html5QrcodeScannerState.PAUSED) {
+							qrscanLog('modal hidden', 'resuming paused scanner');
 							scanner.resume();
+						} else {
+							qrscanLog('modal hidden', 'nothing to resume');
 						}
 					} catch (e) {
 						/* ignore */
