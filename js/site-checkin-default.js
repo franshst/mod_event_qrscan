@@ -129,6 +129,7 @@
 		if (!scanner) return;
 		setStartButtonLabel(stopLabel);
 		var lastStartError = null;
+		var sawCameraBusy = false;
 		if (cameras.length === 0) {
 			qrscanLog('startScanner', 'no enumerated cameras, re-enumerating');
 			try {
@@ -164,7 +165,8 @@
 		var efficiencyConfig = { fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true };
 		qrscanLog('startScanner', 'candidates=' + JSON.stringify(candidates), 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
 		function showNoCamera() {
-			qrscanLog('startScanner', 'all candidates exhausted', 'busy=' + isCameraBusyError(lastStartError));
+			var busy = sawCameraBusy || isCameraBusyError(lastStartError);
+			qrscanLog('startScanner', 'all candidates exhausted', 'busy=' + busy);
 			try {
 				Html5Qrcode.getCameras().then(function (recount) {
 					qrscanLog('startScanner', 'post-failure recount', 'found=' + recount.length, 'labels=' + JSON.stringify(recount.map(function (c) { return c.label || ''; })));
@@ -172,7 +174,7 @@
 					qrscanLog('startScanner', 'post-failure recount failed');
 				});
 			} catch (e) { /* ignore */ }
-			if (isCameraBusyError(lastStartError)) {
+			if (busy) {
 				showModal(EventQrscanHelper.getErrorMessage('camera_busy'), 'warning');
 			} else {
 				showModal(EventQrscanHelper.getErrorMessage('no_camera'), 'warning');
@@ -188,6 +190,9 @@
 				qrscanLog('startScanner', 'attempt ok', 'config=' + JSON.stringify(candidates[index]));
 			}).catch(function (error) {
 				lastStartError = error;
+				if (isCameraBusyError(error)) {
+					sawCameraBusy = true;
+				}
 				var errName = error ? error.name : String(error);
 				var errMsg = error ? error.message : String(error);
 				var errStr;
