@@ -82,6 +82,7 @@
 		getErrorMessage: function (caseName) {
 			var messages = {
 				no_camera: 'No camera available.',
+				camera_busy: 'Camera is in use by another application.',
 				offline: 'No network, check-in service unavailable',
 				invalid_qr: 'This seems not to be a ticket QR code',
 				bad_key: 'Invalid ticket code',
@@ -104,17 +105,46 @@
 		return match ? match[1] : label;
 	}
 
+	function parseEmbeddedErrorName(error) {
+		var match = /error\s*=\s*(\w+Error)/i.exec(String((error && error.message) || error || ''));
+		return match ? match[1] : '';
+	}
+
+	function domErrorName(error) {
+		if (error && error.name) return error.name;
+		return parseEmbeddedErrorName(error);
+	}
+
 	function isPermissionError(error) {
-		var text = '';
-		if (error) {
-			text += (error.name || '') + ' ' + (error.message || '') + ' ' + String(error);
-		}
-		return /denied|permission|secure/i.test(text);
+		var text = domErrorName(error) + ' ' + String((error && error.message) || error || '');
+		return /notallowederror|securityerror|denied|permission|secure/i.test(text);
+	}
+
+	function isCameraBusyError(error) {
+		var text = domErrorName(error) + ' ' + String((error && error.message) || error || '');
+		return /notreadableerror|aborterror|trackstarterror|in use|could not start video source/i.test(text);
 	}
 
 	function startScanner(deviceId) {
 		if (!scanner) return;
 		setStartButtonLabel(stopLabel);
+		var lastStartError = null;
+		if (cameras.length === 0) {
+			qrscanLog('startScanner', 'no enumerated cameras, re-enumerating');
+			try {
+				loadCameraPreferences().then(function () {
+					qrscanLog('startScanner', 're-enumeration done', 'found=' + cameras.length);
+					buildAndStart();
+				}).catch(function () {
+					buildAndStart();
+				});
+			} catch (e) {
+				buildAndStart();
+			}
+			return;
+		}
+		buildAndStart();
+		function buildAndStart() {
 		var candidates = [];
 		function addDeviceCandidate(id) {
 			if (!id) return;
@@ -134,7 +164,7 @@
 		var efficiencyConfig = { fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true };
 		qrscanLog('startScanner', 'candidates=' + JSON.stringify(candidates), 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
 		function showNoCamera() {
-			qrscanLog('startScanner', 'all candidates exhausted');
+			qrscanLog('startScanner', 'all candidates exhausted', 'busy=' + isCameraBusyError(lastStartError));
 			try {
 				Html5Qrcode.getCameras().then(function (recount) {
 					qrscanLog('startScanner', 'post-failure recount', 'found=' + recount.length, 'labels=' + JSON.stringify(recount.map(function (c) { return c.label || ''; })));
@@ -142,7 +172,11 @@
 					qrscanLog('startScanner', 'post-failure recount failed');
 				});
 			} catch (e) { /* ignore */ }
-			showModal(EventQrscanHelper.getErrorMessage('no_camera'), 'warning');
+			if (isCameraBusyError(lastStartError)) {
+				showModal(EventQrscanHelper.getErrorMessage('camera_busy'), 'warning');
+			} else {
+				showModal(EventQrscanHelper.getErrorMessage('no_camera'), 'warning');
+			}
 			playSound(false);
 		}
 		function tryCandidate(index) {
@@ -153,6 +187,7 @@
 			scanner.start(candidates[index], efficiencyConfig, onScanSuccess, onScanFailure).then(function () {
 				qrscanLog('startScanner', 'attempt ok', 'config=' + JSON.stringify(candidates[index]));
 			}).catch(function (error) {
+				lastStartError = error;
 				var errName = error ? error.name : String(error);
 				var errMsg = error ? error.message : String(error);
 				var errStr;
@@ -168,6 +203,7 @@
 			});
 		}
 		tryCandidate(0);
+		}
 	}
 
 	function stopScanner() {
@@ -227,7 +263,8 @@
 			return getCameraDeviceId(cameras[0]);
 		}
 		return null;
-		}).catch(function () {
+		}).catch(function (err) {
+			qrscanLog('loadCameraPreferences', 'failed', 'reason=' + String((err && err.message) || err || ''));
 			cameras = [];
 			return null;
 		});

@@ -23,6 +23,7 @@ This feature provides a web-based QR scan module for event volunteers to check t
 ### Edge Cases
 
 - **No camera available**: User should be informed of the issue
+- **Camera in use**: User should be informed the camera is in use by another application
 - **Network error**: Clear indication of connection problem
 - **Invalid QR code**: Display error message
 - **Pop-up display failure**: Clear error message
@@ -40,7 +41,7 @@ This feature provides a web-based QR scan module for event volunteers to check t
 4. **FR-4 QR Recognition**: QR-only decode attempt at `fps: 1`, `qrbox` 250×250, `formatsToSupport: [QR_CODE]`, `disableFlip: true`.
 5. **FR-5 Ticket Code Transmission**: Send `GET {checkinUrl}&value={encodeURIComponent(ticket)}&t={Date.now()}` to Check-in Module; secure transmission delegated to site HTTPS + logged-in user (no extra module crypto).
 6. **FR-6 Response Display**: Single Bootstrap 5 modal (`qrscanModal`) shows text-escaped `message`; Close via `data-bs-dismiss`. If `bootstrap.Modal` is unavailable, render the message as inline text instead (FR-7 error path; modal and inline fallback are never shown simultaneously). Body styling uses module params `text_success_class` (default `text-success`) and `text_warning_class` (default `text-danger`); no module CSS.
-7. **FR-7 User Feedback**: All failures show human-readable modal/inline text (no `alert()`). Acceptance criteria: each negative case (no camera, offline, invalid QR, bad key, EB absent) yields modal/inline text with the correct EB sound where applicable.
+7. **FR-7 User Feedback**: All failures show human-readable modal/inline text (no `alert()`). Acceptance criteria: each negative case (no camera, camera in use, offline, invalid QR, bad key, EB absent) yields modal/inline text with the correct EB sound where applicable.
 8. **FR-8 Non-Scanning During Processing**: No check-in request while `isProcessing===true` (software flag + guarded `pause(true)`/`resume()`); verified by single request in devtools Network.
 9. **FR-9 Ticket Code Pre-validation**: Before any network call, reject `decodedText` that is empty, non-alphanumeric, or longer than `ticket_max_length` (default 32); show human-readable modal/inline error and send no request. Undecodable frames (`onScanFailure`) stay silent no-ops.
 10. **FR-10 Audio Feedback**: On each resolved result, play EB `success.mp3` iff `success:true`, else `fail.mp3` — including client-validation and network failures. Guard `Audio` playback errors with silent fallback; result display (FR-6/FR-7) always takes precedence. No audio assets are bundled in the ZIP (EB-sourced, see R7).
@@ -52,7 +53,7 @@ This feature provides a web-based QR scan module for event volunteers to check t
 2. **SC-2 Accuracy [informational]**: 99% of QR codes are recognized correctly (post-launch, not a build gate).
 3. **SC-3 Response Time [informational]**: Response pop-up appears within 1 second of QR recognition. NOTE: Fulfilling this timing is out of scope of this first implementation, as scan processing speed is heavily influenced by lighting conditions and camera quality and cannot be influenced by the HTML5 QR code JavaScript implementation. (monitored via T16 manual scan.)
 4. **SC-4 User Satisfaction [informational]**: 80% of users report the interface is easy to use (post-launch survey, not a build gate). NOTE: Scan timing targets (<1 second) are out of scope of this first implementation, as scan processing speed is heavily influenced by lighting conditions and camera quality.
-5. **SC-5 Error Handling [build-gate]**: Every error case displays a specific human-readable message and the correct EB sound where applicable: no camera → "No camera available."; offline → "No network, check-in service unavailable"; invalid QR → "This seems not to be a ticket QR code"; bad key → not detected by this module (check-in module returns its own message); EB absent → "Error while communicating with check-in service, error code is %s" (where `%s` is the HTTP status code). Verified by T16 negatives.
+5. **SC-5 Error Handling [build-gate]**: Every error case displays a specific human-readable message and the correct EB sound where applicable: no camera → "No camera available."; camera in use → "Camera is in use by another application."; offline → "No network, check-in service unavailable"; invalid QR → "This seems not to be a ticket QR code"; bad key → not detected by this module (check-in module returns its own message); EB absent → "Error while communicating with check-in service, error code is %s" (where `%s` is the HTTP status code). Verified by T16 negatives.
 6. **SC-6 Reliability [out-of-scope]**: Out of scope — uptime is dictated by the availability of the underlying (out-of-scope) software/hardware.
 
 ## Key Entities
@@ -79,6 +80,10 @@ This feature provides a web-based QR scan module for event volunteers to check t
 ### Session 2026-09-13
 
 - Q: How is JS minification handled? → A: Minification is done by `build.py` using `uglify-js` (`uglifyjs js/site-checkin-default.js -o js/site-checkin-default.min.js`). `build.yml` also installs `uglify-js` for CI consistency.
+
+### Session 2026-09-16
+
+- Q: What should the camera-in-use message say? → A: B — "Camera is in use by another application." (inform only, no retry guidance)
 
 ## Notes
 
