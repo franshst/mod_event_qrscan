@@ -135,6 +135,13 @@
 		qrscanLog('startScanner', 'candidates=' + JSON.stringify(candidates), 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
 		function showNoCamera() {
 			qrscanLog('startScanner', 'all candidates exhausted');
+			try {
+				Html5Qrcode.getCameras().then(function (recount) {
+					qrscanLog('startScanner', 'post-failure recount', 'found=' + recount.length, 'labels=' + JSON.stringify(recount.map(function (c) { return c.label || ''; })));
+				}).catch(function () {
+					qrscanLog('startScanner', 'post-failure recount failed');
+				});
+			} catch (e) { /* ignore */ }
 			showModal(EventQrscanHelper.getErrorMessage('no_camera'), 'warning');
 			playSound(false);
 		}
@@ -146,7 +153,13 @@
 			scanner.start(candidates[index], efficiencyConfig, onScanSuccess, onScanFailure).then(function () {
 				qrscanLog('startScanner', 'attempt ok', 'config=' + JSON.stringify(candidates[index]));
 			}).catch(function (error) {
-				qrscanLog('startScanner', 'attempt failed', 'config=' + JSON.stringify(candidates[index]), 'error=' + ((error && (error.name + ': ' + error.message)) || String(error)));
+				var errName = error ? error.name : String(error);
+				var errMsg = error ? error.message : String(error);
+				var errStr;
+				try { errStr = String(error); } catch (e) { errStr = '?'; }
+				var errJson;
+				try { errJson = JSON.stringify(error); } catch (e) { errJson = 'unstringifiable'; }
+				qrscanLog('startScanner', 'attempt failed', 'config=' + JSON.stringify(candidates[index]), 'name=' + errName, 'message=' + errMsg, 'string=' + errStr, 'json=' + errJson);
 				if (isPermissionError(error)) {
 					showNoCamera();
 					return;
@@ -298,7 +311,7 @@
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {
-		scanner = new Html5Qrcode('reader');
+		scanner = new Html5Qrcode('reader', { verbose: true }); /* TEMPORARY-DEBUG: lib internals to console */
 		qrscanLog('init', 'checkinUrl=' + (!!checkinUrl), 'bootstrap.Modal=' + (!!(typeof bootstrap !== 'undefined' && bootstrap && bootstrap.Modal)), 'Html5QrcodeScannerState=' + (typeof Html5QrcodeScannerState !== 'undefined'));
 
 		document.getElementById('start-stop-btn').addEventListener('click', function () {
