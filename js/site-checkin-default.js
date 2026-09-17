@@ -224,6 +224,52 @@
 		}
 	}
 
+	function pauseScanning() {
+		if (scanner) {
+			try {
+				if (typeof scanner.getState === 'function') {
+					try {
+						if (scanner.getState() === Html5QrcodeScannerState.SCANNING) {
+							scanner.pause(true);
+							return pauseVideoElement();
+						}
+					} catch (e) {
+						/* fall through to unconditional attempt (e.g. state lookup failed) */
+					}
+				}
+				scanner.pause(true);
+			} catch (e) {
+				/* flag-only fallback */
+			}
+		}
+		pauseVideoElement();
+	}
+
+	function pauseVideoElement() {
+		try {
+			var video = document.querySelector('#reader video');
+			if (video && !video.paused) {
+				video.pause();
+			}
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	function playVideoElement() {
+		try {
+			var video = document.querySelector('#reader video');
+			if (video && video.paused) {
+				var p = video.play();
+				if (p && typeof p.catch === 'function') {
+					p.catch(function () {});
+				}
+			}
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
 	function cycleCamera() {
 		if (cameras.length === 0) {
 			showModal(EventQrscanHelper.getErrorMessage('no_camera'), 'warning');
@@ -283,6 +329,8 @@
 		if (isProcessing) return;
 		qrscanLog('onScanSuccess', 'len=' + (decodedText || '').length);
 		if (!EventQrscanHelper.validateTicketCode(decodedText, ticketMaxLength)) {
+			isProcessing = true;
+			pauseScanning();
 			showModal(EventQrscanHelper.getErrorMessage('invalid_qr'), 'warning');
 			playSound(false);
 			return;
@@ -296,15 +344,7 @@
 		storage.setItem(decodedText, now);
 
 		isProcessing = true;
-		if (scanner) {
-			try {
-				if (typeof scanner.getState === 'function' && scanner.getState() === Html5QrcodeScannerState.SCANNING) {
-					scanner.pause(true);
-				}
-			} catch (e) {
-				/* flag-only fallback */
-			}
-		}
+		pauseScanning();
 
 		var url = checkinUrl + '&value=' + encodeURIComponent(decodedText) + '&t=' + Date.now();
 		Joomla.request({
@@ -346,6 +386,7 @@
 				/* ignore */
 			}
 		} else {
+			if (isProcessing) return;
 			try {
 				if (scanner && typeof scanner.getState === 'function' && scanner.getState() === Html5QrcodeScannerState.PAUSED) {
 					scanner.resume();
@@ -353,6 +394,7 @@
 			} catch (e) {
 				/* ignore */
 			}
+			playVideoElement();
 		}
 	}
 
@@ -403,6 +445,7 @@
 						/* ignore */
 					}
 				}
+				playVideoElement();
 			});
 		}
 
