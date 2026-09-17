@@ -231,24 +231,116 @@
 		return null;
 	}
 
+	/* TEMPORARY-DEBUG: on-screen diagnostics (phone has no console access). Remove after diagnosis. */
+	var qrscanDebugEl = null;
+	function qrscanDbg(msg) {
+		qrscanLog(msg);
+		try {
+			if (!qrscanDebugEl) {
+				qrscanDebugEl = document.getElementById('qrscan-debug');
+			}
+			if (qrscanDebugEl) {
+				var line = document.createElement('div');
+				line.textContent = new Date().toISOString().substr(11, 12) + ' ' + msg;
+				qrscanDebugEl.appendChild(line);
+				while (qrscanDebugEl.childNodes.length > 10) {
+					qrscanDebugEl.removeChild(qrscanDebugEl.firstChild);
+				}
+			}
+		} catch (e) { /* ignore */ }
+	}
+
+	function ensureDebugEl() {
+		try {
+			if (document.getElementById('qrscan-debug')) return;
+			var el = document.createElement('div');
+			el.id = 'qrscan-debug';
+			el.setAttribute('style', 'font:11px/1.4 monospace;white-space:pre-wrap;word-break:break-all;background:#111;color:#0f0;padding:4px;margin-top:4px;max-height:140px;overflow:auto;');
+			var anchor = document.getElementById('switch-camera-btn') || document.getElementById('reader');
+			if (anchor && anchor.parentNode) {
+				anchor.parentNode.insertBefore(el, anchor.nextSibling);
+			}
+		} catch (e) { /* ignore */ }
+	}
+
+	function videoCensus() {
+		try {
+			var videos = document.querySelectorAll('#reader video');
+			var parts = ['videos=' + videos.length];
+			for (var i = 0; i < videos.length; i++) {
+				var v = videos[i];
+				var tracks = '';
+				try {
+					var stream = v.srcObject;
+					if (stream && typeof stream.getTracks === 'function') {
+						tracks = stream.getTracks().map(function (t) { return t.kind + ':' + t.readyState; }).join(',');
+					} else {
+						tracks = 'no-srcObject';
+					}
+				} catch (e) { tracks = 'err'; }
+				parts.push('[paused=' + (!!v.paused) + ' ' + tracks + ']');
+			}
+			return parts.join(' ');
+		} catch (e) { return 'census-err'; }
+	}
+
+	function scannerState() {
+		try {
+			if (scanner && typeof scanner.getState === 'function') return scanner.getState();
+			return 'no-getState';
+		} catch (e) { return 'state-err:' + String((e && e.message) || e); }
+	}
+
 	function lockScanner() {
-		if (!scanner) return;
+		qrscanDbg('lock: state-before=' + scannerState() + ' ' + videoCensus());
+		if (!scanner) {
+			qrscanDbg('lock: no scanner object');
+			return;
+		}
 		try {
 			var result = scanner.stop();
-			if (result && typeof result.catch === 'function') {
-				result.catch(function () {});
+			if (result && typeof result.then === 'function') {
+				result.then(function () {
+					qrscanDbg('lock: stop RESOLVED state-after=' + scannerState() + ' ' + videoCensus());
+				}, function (err) {
+					qrscanDbg('lock: stop REJECTED reason=' + String((err && err.message) || err) + ' state=' + scannerState() + ' ' + videoCensus());
+				});
+			} else {
+				qrscanDbg('lock: stop returned non-promise state=' + scannerState());
 			}
 		} catch (e) {
-			/* ignore — isProcessing flag remains the request guard */
+			qrscanDbg('lock: stop THREW reason=' + String((e && e.message) || e) + ' state=' + scannerState());
 		}
+		enforceVideoStop();
+		qrscanDbg('lock: after enforce ' + videoCensus());
+	}
+
+	function enforceVideoStop() {
+		try {
+			var videos = document.querySelectorAll('#reader video');
+			for (var i = 0; i < videos.length; i++) {
+				var v = videos[i];
+				try { v.pause(); } catch (e) {}
+				try {
+					var stream = v.srcObject;
+					if (stream && typeof stream.getTracks === 'function') {
+						stream.getTracks().forEach(function (t) {
+							try { t.stop(); } catch (e) {}
+						});
+					}
+				} catch (e) {}
+			}
+		} catch (e) { /* ignore */ }
 	}
 
 	function unlockScanner() {
+		qrscanDbg('unlock: dismissed hidden=' + document.hidden + ' state=' + scannerState() + ' ' + videoCensus());
 		if (!scanner || document.hidden) return;
 		try {
 			startScanner(getCurrentDeviceId());
+			qrscanDbg('unlock: restart requested state=' + scannerState());
 		} catch (e) {
-			/* ignore */
+			qrscanDbg('unlock: restart THREW ' + String((e && e.message) || e));
 		}
 	}
 
@@ -381,6 +473,8 @@
 
 	document.addEventListener('DOMContentLoaded', function () {
 		scanner = new Html5Qrcode('reader', { verbose: true }); /* TEMPORARY-DEBUG: lib internals to console */
+		ensureDebugEl();
+		qrscanDbg('boot: ' + navigator.userAgent);
 		qrscanLog('init', 'checkinUrl=' + (!!checkinUrl), 'bootstrap.Modal=' + (!!(typeof bootstrap !== 'undefined' && bootstrap && bootstrap.Modal)), 'Html5QrcodeScannerState=' + (typeof Html5QrcodeScannerState !== 'undefined'));
 
 		document.getElementById('start-stop-btn').addEventListener('click', function () {
