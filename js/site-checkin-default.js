@@ -49,6 +49,16 @@
 			if (!modalInstance) {
 				modalInstance = new bootstrap.Modal(modalElement);
 			}
+			try {
+				var reader = document.getElementById('reader');
+				var dialog = modalElement.querySelector('.modal-dialog');
+				if (reader && dialog) {
+					var top = reader.getBoundingClientRect().top;
+					dialog.style.marginTop = Math.max(0, Math.round(top)) + 'px';
+				}
+			} catch (e) {
+				/* ignore — modal shows at default position */
+			}
 			modalInstance.show();
 		} else {
 			const reader = document.getElementById('reader');

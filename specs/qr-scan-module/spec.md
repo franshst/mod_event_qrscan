@@ -40,7 +40,7 @@ This feature provides a web-based QR scan module for event volunteers to check t
 3. **FR-3 Start/Stop Control**: Custom Start/Stop button starts/stops `Html5Qrcode` decoder (no `Html5QrcodeScanner` widget UI).
 4. **FR-4 QR Recognition**: QR-only decode attempt at `fps: 1`, `qrbox` 250×250, `formatsToSupport: [QR_CODE]`, `disableFlip: true`.
 5. **FR-5 Ticket Code Transmission**: Send `GET {checkinUrl}&value={encodeURIComponent(ticket)}&t={Date.now()}` to Check-in Module; secure transmission delegated to site HTTPS + logged-in user (no extra module crypto).
-6. **FR-6 Response Display**: Single Bootstrap 5 modal (`qrscanModal`) shows text-escaped `message`; Close via `data-bs-dismiss`. If `bootstrap.Modal` is unavailable, render the message as inline text instead (FR-7 error path; modal and inline fallback are never shown simultaneously). Body styling uses module params `text_success_class` (default `text-success`) and `text_warning_class` (default `text-danger`); no module CSS.
+6. **FR-6 Response Display**: Single Bootstrap 5 modal (`qrscanModal`) shows text-escaped `message`; Close via `data-bs-dismiss`. If `bootstrap.Modal` is unavailable, render the message as inline text instead (FR-7 error path; modal and inline fallback are never shown simultaneously). Body styling uses module params `text_success_class` (default `text-success`) and `text_warning_class` (default `text-danger`); no external CSS file (JS-set inline styles and embedded `<style>` in the template are allowed).
 7. **FR-7 User Feedback**: All failures show human-readable modal/inline text (no `alert()`). Acceptance criteria: each negative case (no camera, camera in use, offline, invalid QR, bad key, EB absent) yields modal/inline text with the correct EB sound where applicable.
 8. **FR-8 Non-Scanning During Processing**: No check-in request while `isProcessing===true` (software flag + guarded `pause(true)`/`resume()`); verified by single request in devtools Network.
 9. **FR-9 Ticket Code Pre-validation**: Before any network call, reject `decodedText` that is empty, non-alphanumeric, or longer than `ticket_max_length` (default 32); show human-readable modal/inline error and send no request. Undecodable frames (`onScanFailure`) stay silent no-ops.
@@ -84,6 +84,11 @@ This feature provides a web-based QR scan module for event volunteers to check t
 ### Session 2026-09-16
 
 - Q: What should the camera-in-use message say? → A: B — "Camera is in use by another application." (inform only, no retry guidance)
+
+### Session 2026-09-18
+
+- Q: What does FR-6 'no module CSS' mean? → A: No external CSS file; JS-set inline styles are allowed.
+- Q: Does the rule also forbid an embedded `<style>` block in the template? → A: B — No, embedded `<style>` in `tmpl/default.php` is allowed; only separate `.css` files are banned.
 
 ## Notes
 
