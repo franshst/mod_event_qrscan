@@ -224,47 +224,29 @@
 		}
 	}
 
-	function pauseScanning() {
-		if (scanner) {
-			try {
-				if (typeof scanner.getState === 'function') {
-					try {
-						if (scanner.getState() === Html5QrcodeScannerState.SCANNING) {
-							scanner.pause(true);
-							return pauseVideoElement();
-						}
-					} catch (e) {
-						/* fall through to unconditional attempt (e.g. state lookup failed) */
-					}
-				}
-				scanner.pause(true);
-			} catch (e) {
-				/* flag-only fallback */
-			}
+	function getCurrentDeviceId() {
+		if (cameras.length > 0 && currentCameraIndex < cameras.length) {
+			return getCameraDeviceId(cameras[currentCameraIndex]);
 		}
-		pauseVideoElement();
+		return null;
 	}
 
-	function pauseVideoElement() {
+	function lockScanner() {
+		if (!scanner) return;
 		try {
-			var video = document.querySelector('#reader video');
-			if (video && !video.paused) {
-				video.pause();
+			var result = scanner.stop();
+			if (result && typeof result.catch === 'function') {
+				result.catch(function () {});
 			}
 		} catch (e) {
-			/* ignore */
+			/* ignore — isProcessing flag remains the request guard */
 		}
 	}
 
-	function playVideoElement() {
+	function unlockScanner() {
+		if (!scanner || document.hidden) return;
 		try {
-			var video = document.querySelector('#reader video');
-			if (video && video.paused) {
-				var p = video.play();
-				if (p && typeof p.catch === 'function') {
-					p.catch(function () {});
-				}
-			}
+			startScanner(getCurrentDeviceId());
 		} catch (e) {
 			/* ignore */
 		}
@@ -330,7 +312,7 @@
 		qrscanLog('onScanSuccess', 'len=' + (decodedText || '').length);
 		if (!EventQrscanHelper.validateTicketCode(decodedText, ticketMaxLength)) {
 			isProcessing = true;
-			pauseScanning();
+			lockScanner();
 			showModal(EventQrscanHelper.getErrorMessage('invalid_qr'), 'warning');
 			playSound(false);
 			return;
@@ -344,7 +326,7 @@
 		storage.setItem(decodedText, now);
 
 		isProcessing = true;
-		pauseScanning();
+		lockScanner();
 
 		var url = checkinUrl + '&value=' + encodeURIComponent(decodedText) + '&t=' + Date.now();
 		Joomla.request({
@@ -394,7 +376,6 @@
 			} catch (e) {
 				/* ignore */
 			}
-			playVideoElement();
 		}
 	}
 
@@ -433,19 +414,8 @@
 				qrscanLog('modal hidden', 'isProcessing=' + isProcessing);
 				if (!isProcessing) return;
 				isProcessing = false;
-				if (scanner) {
-					try {
-						if (typeof scanner.getState === 'function' && scanner.getState() === Html5QrcodeScannerState.PAUSED) {
-							qrscanLog('modal hidden', 'resuming paused scanner');
-							scanner.resume();
-						} else {
-							qrscanLog('modal hidden', 'nothing to resume');
-						}
-					} catch (e) {
-						/* ignore */
-					}
-				}
-				playVideoElement();
+				qrscanLog('modal hidden', 'restarting scanner');
+				unlockScanner();
 			});
 		}
 
