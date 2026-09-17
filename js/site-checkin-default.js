@@ -92,13 +92,13 @@
 		},
 		getErrorMessage: function (caseName) {
 			var messages = {
-				no_camera: 'No camera available.',
-				camera_busy: 'Camera is in use by another application.',
-				offline: 'No network, check-in service unavailable',
-				invalid_qr: 'This seems not to be a ticket QR code',
-				bad_key: 'Invalid ticket code',
-				eb_absent: 'Error while communicating with check-in service, error code is %s',
-				unknown: 'An error occurred'
+				no_camera: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_NO_CAMERA', 'No camera available.'),
+				camera_busy: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_CAMERA_BUSY', 'Camera is in use by another application.'),
+				offline: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_OFFLINE', 'No network, check-in service unavailable'),
+				invalid_qr: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_INVALID_QR', 'This seems not to be a ticket QR code'),
+				bad_key: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_BAD_KEY', 'Invalid ticket code'),
+				eb_absent: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_EB_ABSENT', 'Error while communicating with check-in service, error code is %s'),
+				unknown: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_UNKNOWN', 'An error occurred')
 			};
 			return messages[caseName] || messages.unknown;
 		}

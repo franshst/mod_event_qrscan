@@ -17,7 +17,7 @@ $textWarningClass = $params->get('text_warning_class', 'text-danger');
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title"><?php echo JText::_('MOD_EVENT_QRSCAN_RESULT'); ?></h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo JText::_('MOD_EVENT_QRSCAN_CLOSE'); ?>"></button>
 			</div>
 			<div class="modal-body <?php echo $textSuccessClass; ?>"></div>
 			<div class="modal-footer">

@@ -55,6 +55,13 @@ $doc->addScriptOptions('textSuccessClass', $textSuccessClass);
 $doc->addScriptOptions('textWarningClass', $textWarningClass);
 $doc->addScriptOptions('MOD_EVENT_QRSCAN_START', JText::_('MOD_EVENT_QRSCAN_START'));
 $doc->addScriptOptions('MOD_EVENT_QRSCAN_STOP', JText::_('MOD_EVENT_QRSCAN_STOP'));
+$doc->addScriptOptions('MOD_EVENT_QRSCAN_ERROR_NO_CAMERA', JText::_('MOD_EVENT_QRSCAN_ERROR_NO_CAMERA'));
+$doc->addScriptOptions('MOD_EVENT_QRSCAN_ERROR_CAMERA_BUSY', JText::_('MOD_EVENT_QRSCAN_ERROR_CAMERA_BUSY'));
+$doc->addScriptOptions('MOD_EVENT_QRSCAN_ERROR_OFFLINE', JText::_('MOD_EVENT_QRSCAN_ERROR_OFFLINE'));
+$doc->addScriptOptions('MOD_EVENT_QRSCAN_ERROR_INVALID_QR', JText::_('MOD_EVENT_QRSCAN_ERROR_INVALID_QR'));
+$doc->addScriptOptions('MOD_EVENT_QRSCAN_ERROR_BAD_KEY', JText::_('MOD_EVENT_QRSCAN_ERROR_BAD_KEY'));
+$doc->addScriptOptions('MOD_EVENT_QRSCAN_ERROR_EB_ABSENT', JText::_('MOD_EVENT_QRSCAN_ERROR_EB_ABSENT'));
+$doc->addScriptOptions('MOD_EVENT_QRSCAN_ERROR_UNKNOWN', JText::_('MOD_EVENT_QRSCAN_ERROR_UNKNOWN'));
 $doc->addScript('modules/mod_event_qrscan/js/html5-qrcode.min.js');
 $doc->addScript('modules/mod_event_qrscan/js/site-checkin-default.min.js');
 
