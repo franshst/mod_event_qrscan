@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" client="site" method="upgrade">
 	<name>mod_event_qrscan</name>
-	<author>Event QR Scan Module</author>
+	<author>Frans Stuurman</author>
 	<creationDate>2026-09-12</creationDate>
-	<copyright>GPLv3</copyright>
-	<license>GNU General Public License version 2 or later</license>
+	<copyright>Frans Stuurman 2026</copyright>
+	<license>MIT</license>
 	<infourl type="developer">https://github.com/franshst/mod_event_qrscan</infourl>
-	<authorEmail>admin@example.com</authorEmail>
 	<authorUrl>https://github.com/franshst/mod_event_qrscan</authorUrl>
 	<version>{VERSION}</version>
-	<description>MOD_EVENT_QRSCAN_XML_DESCRIPTION</description>
+	<description>Module replaces the Event Booking QRCODE scanner with a faster browser native implementation</description>
 	<namespace>EventQRScan</namespace>
 	<files>
 		<filename module="mod_event_qrscan">mod_event_qrscan.php</filename>

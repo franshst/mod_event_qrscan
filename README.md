@@ -83,14 +83,19 @@ The Joomla Update System is configured via `event_qrscan_update.xml`. When a new
    node --check js/site-checkin-default.js
    ```
 
-2. **Build the release** — run `build.py` with the new semver version:
+2. **Build and publish the release** — run `deploy.sh`, which automates the whole flow:
+   ```bash
+   ./deploy.sh [major|minor|patch]   # default: patch
+   ```
+   This performs:
+   - Reads the latest published GitHub release tag (e.g. `1.0.35`; uses `0.0.0` if no release exists yet) and bumps the requested part (`1.0.35` → `1.0.36` for patch).
+   - Runs `python build.py <new-version>` (vendored-lib gate, lint, XML parsing, manifest stamping, ZIP creation, completeness assertion, update XML + SHA256). The script aborts here if the build fails — no release is created.
+   - Creates the GitHub release with `mod_event_qrscan_<version>.zip` and `event_qrscan_update.xml`, titled `Release <version>`, with release notes listing one bullet per commit subject since the previous tag (falls back to "Bug fixes and improvements." when the tag can't be fetched or there are no new commits).
+
+   Manual equivalent (if you need full control over version or notes):
+
    ```bash
    python build.py 1.0.4
-   ```
-   This performs: vendored-lib gate check, lint (`php -l`, `node --check`), XML parsing, manifest stamping, ZIP creation (excluding `js/html5-qrcode.min.js` from minification), completeness assertion, update XML generation with `{VERSION}` substitution, and SHA256 checksum computation.
-
-3. **Create a GitHub release** — upload the artifacts using the `gh` CLI:
-   ```bash
    gh release create 1.0.4 \
      mod_event_qrscan_1.0.4.zip \
      event_qrscan_update.xml \
@@ -98,7 +103,7 @@ The Joomla Update System is configured via `event_qrscan_update.xml`. When a new
      --notes "Bug fixes and improvements."
    ```
 
-4. **Verify** — confirm the release page shows both `mod_event_qrscan_1.0.4.zip` and `event_qrscan_update.xml`, and that the SHA256 checksum in the update XML matches the uploaded ZIP.
+3. **Verify** — confirm the release page shows both `mod_event_qrscan_<version>.zip` and `event_qrscan_update.xml`, and that the SHA256 checksum in the update XML matches the uploaded ZIP.
 
 ### CI
 

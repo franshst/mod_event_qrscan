@@ -125,6 +125,9 @@ This feature provides a web-based QR scan module for event volunteers to check t
 - Q: What should happen to the layout parameter that currently has no alternative layout? → A: Remove entirely — the `layout` module param (manifest list with only `default`, `ModuleHelper::getLayoutPath()` call, `contracts/module-params.md` row, and `MOD_EVENT_QRSCAN_LAYOUT` label) has no function since only `tmpl/default.php` exists; remove it from manifest/PHP/contracts/language keys and hardcode the default layout.
 - Q: What default value and allowed range should the new administrator-configurable scan-speed setting use? → A: C — Default 2 (spec default changed from 1 to 2 to match current code, no conflicting requirements), range 1–10, out-of-range values fall back to default.
 - Q: What type of administrator input should the new scan-speed setting use in the module settings form? → A: B — Integer field with min 1, max 10, default 2.
+- Q: Which part of the version number should the release script automatically increase? → A: C — Bump part comes from a script argument, defaulting to patch (release tooling, `deploy.sh`).
+- Q: How should the release script find the latest deployed version on GitHub? → A: A — Latest published release tag via gh (release tooling, `deploy.sh`).
+- Q: What exactly should go into the release text built from the commits since the previous version? → A: A — One bullet per commit subject line since the previous tag (release tooling, `deploy.sh`).
 
 ### Session 2026-09-13
 
