@@ -68,6 +68,31 @@ Note: `ResultModal` is the same entity as the `Pop-up` defined in spec.md — a 
   code must be scannable repeatedly (once per attendant), so the TTL stays short
    (2 s default) — intentional rescan after dismiss must send.
 
+### LanguageString
+
+A single translatable display text, identified by key.
+
+- Fields:
+  - `key` (string, required): full Joomla key, e.g. `MOD_EVENT_QRSCAN_START`. Immutable once shipped (JS/PHP reference it).
+  - `en` (string, required): English source text (en-GB ini is authoritative; also the `Joomla.getOptions` fallback).
+  - `nl` (string, required): Dutch text (nl-NL ini). Must preserve every placeholder verbatim.
+  - `placeholders` (list, derived): `%s` tokens; `nl` MUST contain exactly the same multiset as `en`.
+- Validation rules (from FR-13/FR-16):
+  - nl-NL key set MUST equal the en-GB key set (key parity; no missing, no orphan keys).
+  - No key's text may be duplicated from code literals — ini files are the single source.
+- Relationships: many Language Strings live in one Language File; strings are consumed by template (PHP `JText`) or script options (JS `Joomla.getOptions`).
+
+### LanguageFile
+
+- Fields:
+  - `tag` (enum: `en-GB`, `nl-NL`), `scope` (site ini | sys ini), `path` (`language/<tag>/<tag>.mod_event_qrscan[.sys].ini`).
+  - `keys`: full key set for site ini (20 keys); sys ini carries the description key.
+- State transitions: none (static shipped files). Lifecycle: added at build → installed via `<folder>language</folder>` → resolved at runtime by Joomla core, en-GB fallback when a key is absent.
+
+## Key inventory (language keys, 20 keys)
+
+`MOD_EVENT_QRSCAN_AIM_INSTRUCTION`, `_START`, `_STOP`, `_SWITCH_CAMERA`, `_RESULT`, `_CLOSE`, `_ERROR_NO_CAMERA`, `_ERROR_CAMERA_BUSY`, `_ERROR_OFFLINE`, `_ERROR_INVALID_QR`, `_ERROR_BAD_KEY`, `_ERROR_EB_ABSENT`, `_ERROR_UNKNOWN`, `_ERROR_CHECKIN_CONFIG`, `_XML_DESCRIPTION`, `_CHECKIN_INTERVAL`, `_TICKET_MAX_LENGTH`, `_TEXT_SUCCESS_CLASS`, `_TEXT_WARNING_CLASS`, `_SCAN_FPS` (20 keys; sys ini: `_XML_DESCRIPTION`).
+
 ## Relationships
 
 - `User` uses `Camera` to capture `QrCode` → `TicketCode` → `CheckinRequest` →

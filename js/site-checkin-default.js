@@ -8,6 +8,11 @@
 	const failAudioUrl = Joomla.getOptions('failAudioUrl');
 	const textSuccessClass = Joomla.getOptions('textSuccessClass');
 	const textWarningClass = Joomla.getOptions('textWarningClass');
+	const scanFps = (function () {
+		var fps = parseInt(Joomla.getOptions('scanFps', 2), 10);
+		if (isNaN(fps) || fps < 1 || fps > 10) return 2;
+		return fps;
+	})();
 	const storage = window.sessionStorage;
 
 	/* TEMPORARY-DEBUG: console diagnostics for the "No camera available" issue. Set to false to silence. */
@@ -173,7 +178,7 @@
 			addDeviceCandidate(getCameraDeviceId(cameras[0]));
 		}
 		candidates.push({ facingMode: { exact: 'environment' } });
-		var efficiencyConfig = { fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true };
+		var efficiencyConfig = { fps: scanFps, qrbox: { width: 250, height: 250 }, disableFlip: true };
 		qrscanLog('startScanner', 'candidates=' + JSON.stringify(candidates), 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
 		function showNoCamera() {
 			var busy = sawCameraBusy || isCameraBusyError(lastStartError) || isCameraBusyError(lastCameraQueryError);
@@ -409,7 +414,11 @@
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {
-		scanner = new Html5Qrcode('reader', { verbose: true }); /* TEMPORARY-DEBUG: lib internals to console */
+		var ctorConfig = { verbose: true }; /* TEMPORARY-DEBUG: lib internals to console */
+		if (typeof Html5QrcodeSupportedFormats !== 'undefined' && Html5QrcodeSupportedFormats.QR_CODE !== undefined) {
+			ctorConfig.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
+		}
+		scanner = new Html5Qrcode('reader', ctorConfig);
 		qrscanLog('init', 'checkinUrl=' + (!!checkinUrl), 'bootstrap.Modal=' + (!!(typeof bootstrap !== 'undefined' && bootstrap && bootstrap.Modal)), 'Html5QrcodeScannerState=' + (typeof Html5QrcodeScannerState !== 'undefined'));
 
 		document.getElementById('start-stop-btn').addEventListener('click', function () {

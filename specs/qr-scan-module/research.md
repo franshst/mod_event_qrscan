@@ -146,7 +146,7 @@ Format: Decision / Rationale / Alternatives.
 ## R11. Scan efficiency: QR-only, no mirror, low fps (+ dedup interval cut to 2 s)
 
 - Decision: `new Html5Qrcode("reader", { formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] })`;
-  start `{ fps: 1, qrbox: { width: 250, height: 250 }, disableFlip: true }`;
+  start `{ fps: 2, qrbox: { width: 250, height: 250 }, disableFlip: true }`;
   leave native detector default-on (the `@taluks/html5-qrcode` fork uses
   `zxing-wasm` decoder with native detection where available).
   Dedup default cut from 15 s to 2 s (`checkin_interval=2000`).
@@ -190,3 +190,32 @@ Format: Decision / Rationale / Alternatives.
   5. Leave `aspectRatio` unset (whole viewfinder; wrong values break the feed).
 - Rationale: every item is confirmed in 2.3.9 source/official API docs; nothing
    experimental except the explicitly rejected `videoConstraints`.
+
+## R13. JS message sourcing via `addScriptOptions` (existing pattern)
+
+- Decision: Pass each JavaScript-displayed message (`no_camera`, `camera_busy`, `offline`, `invalid_qr`, `bad_key`, `eb_absent`, `unknown`) from `mod_event_qrscan.php` via `$doc->addScriptOptions()` with `JText::_()` resolution, exactly as `MOD_EVENT_QRSCAN_START`/`STOP` are already passed; `EventQrscanHelper.getErrorMessage()` in `js/site-checkin-default.js` reads them via `Joomla.getOptions()` with the current English literals kept only as code fallbacks.
+- Rationale: Zero new mechanisms — the file already resolves two button labels this way, so translators, caching, and overrides behave identically for all strings; no `Joomla.Text` script dependency or `Text::script()` plumbing needed.
+- Alternatives: `Joomla.Text._()` + `Text::script()` — rejected (requires loading core text scripts and reworking every call site for no user-visible gain).
+
+## R14. nl-NL file set mirrors en-GB
+
+- Decision: Add `language/nl-NL/nl-NL.mod_event_qrscan.ini` (all 20 keys from the spec acceptance table) + `language/nl-NL/nl-NL.mod_event_qrscan.sys.ini` (description key) + `index.html` (empty, matches en-GB dir convention).
+- Rationale: Joomla resolves `nl-NL` automatically when the site language is Dutch; sys.ini covers install-time labels; `index.html` preserves the directory-listing guard convention.
+- Alternatives: Crowdin/translation platform — rejected (single 19-key file, overkill); `nl_NL` informal tag — rejected (Joomla canonical tag is `nl-NL`).
+
+## R15. Manifest and ZIP need no changes
+
+- Decision: No manifest edit — `update/mod_event_qrscan.xml` already ships `<folder>language</folder>`, which installs any language subfolder; `build.py` already zips `language/` wholesale. Add a key-parity gate (en-GB ↔ nl-NL same key set) to the release checklist instead of code.
+- Rationale: Smallest change; packaging already generic.
+- Alternatives: Explicit `<language tag="nl-NL">` entries — rejected (legacy Joomla 3 style; folder-based install is the Joomla 4/5 convention already in use).
+
+## R16. Fallback and `%s` behavior unchanged
+
+- Decision: Missing-key fallback stays Joomla's built-in en-GB fallback (no module code — verified standard behavior); the EB-absent `%s` placeholder is carried verbatim into the Dutch string and substituted exactly as today.
+- Rationale: FR-16 without new code paths; keeps display logic identical across languages.
+- Alternatives: Custom fallback lookup in JS — rejected (duplicates core behavior, new failure modes).
+
+## R17. EB-backend messages stay untranslated
+
+- Decision: Texts returned by the Events Booking check-in endpoint pass through untouched, per spec out-of-scope.
+- Rationale: Reservation-module wording is owned by EB, not this module; translating it here would fork wording and drift.

@@ -44,7 +44,10 @@ $checkInInterval = (int) $params->get('checkin_interval', 2000);
 $ticketMaxLength = (int) $params->get('ticket_max_length', 32);
 $textSuccessClass = $params->get('text_success_class', 'text-success');
 $textWarningClass = $params->get('text_warning_class', 'text-danger');
-$layout = $params->get('layout', 'default');
+$scanFps = (int) $params->get('scan_fps', 2);
+if ($scanFps < 1 || $scanFps > 10) {
+	$scanFps = 2;
+}
 
 $doc->addScriptOptions('checkinUrl', $checkinUrl);
 $doc->addScriptOptions('checkInInterval', $checkInInterval);
@@ -53,6 +56,7 @@ $doc->addScriptOptions('successAudioUrl', 'media/com_eventbooking/audios/success
 $doc->addScriptOptions('failAudioUrl', 'media/com_eventbooking/audios/fail.mp3');
 $doc->addScriptOptions('textSuccessClass', $textSuccessClass);
 $doc->addScriptOptions('textWarningClass', $textWarningClass);
+$doc->addScriptOptions('scanFps', $scanFps);
 $doc->addScriptOptions('MOD_EVENT_QRSCAN_START', JText::_('MOD_EVENT_QRSCAN_START'));
 $doc->addScriptOptions('MOD_EVENT_QRSCAN_STOP', JText::_('MOD_EVENT_QRSCAN_STOP'));
 $doc->addScriptOptions('MOD_EVENT_QRSCAN_ERROR_NO_CAMERA', JText::_('MOD_EVENT_QRSCAN_ERROR_NO_CAMERA'));
@@ -65,4 +69,4 @@ $doc->addScriptOptions('MOD_EVENT_QRSCAN_ERROR_UNKNOWN', JText::_('MOD_EVENT_QRS
 $doc->addScript('modules/mod_event_qrscan/js/html5-qrcode.min.js');
 $doc->addScript('modules/mod_event_qrscan/js/site-checkin-default.min.js');
 
-require ModuleHelper::getLayoutPath('mod_event_qrscan', $layout);
+require ModuleHelper::getLayoutPath('mod_event_qrscan', 'default');

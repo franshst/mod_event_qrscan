@@ -21,7 +21,7 @@ The module is built on the `@taluks/html5-qrcode` library (v2.3.9) for cross-bro
 
 | Button | Action |
 |---|---|
-| **Start / Stop** | Toggles the QR scanner on and off. Starts the `Html5Qrcode` decoder with `fps: 1`, `qrbox: 250×250`, `formatsToSupport: [QR_CODE]`. |
+| **Start / Stop** | Toggles the QR scanner on and off. Starts the `Html5Qrcode` decoder with configurable `fps` (default 2, range 1–10), `qrbox: 250×250`, `formatsToSupport: [QR_CODE]`. |
 | **Switch camera** | Cycles through available cameras. Default is the rear (`environment`) camera. The chosen `deviceId` is persisted in `localStorage` and reused on subsequent sessions. |
 | **Close** | Dismisses the result modal. Resumes scanning and enforces dedup: the same ticket code cannot be re-scanned within the check-in interval (default 2000 ms). |
 
@@ -50,7 +50,7 @@ All error messages are displayed in the modal or inline fallback — never via `
 | **Ticket Max Length** | `32` | Maximum allowed length of the ticket code (alphanumeric only). QR codes exceeding this length are rejected client-side before any network request is made. |
 | **Success Text Class** | `text-success` | Bootstrap 5 text utility class applied to the modal body when the check-in succeeds. Common values: `text-success` (green), `text-primary` (blue). |
 | **Warning Text Class** | `text-danger` | Bootstrap 5 text utility class applied to the modal body when the check-in fails or an error occurs. Common values: `text-danger` (red), `text-warning` (yellow). |
-| **Layout** | `default` | Template layout to use. Only `default` is currently supported. |
+| **Scan FPS** | `2` | Scan attempts per second. Integer 1–10; out-of-range values fall back to 2. |
 
 ### Endpoints and sounds
 

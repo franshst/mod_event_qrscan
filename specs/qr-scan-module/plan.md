@@ -15,9 +15,10 @@ result popup. This plan documents the Technical Stack and the design artifacts.
   its own; the module bootstraps EB server-side and reads
   `getConfig()->checkin_api_key`, constructing the full URL itself (see R7).
    No URL/key/sound module params — five genuine module params only
-   (`checkin_interval`, `ticket_max_length`, two Bootstrap 5 text-utility classes
+   (`checkin_interval`, `ticket_max_length`, `scan_fps` (default 2, range 1–10),
+   two Bootstrap 5 text-utility classes
    (`text_success_class` default `text-success`, `text_warning_class` default
-   `text-danger`, no module CSS), `layout`).
+   `text-danger`, no module CSS); single `tmpl/default.php` layout, no `layout` param).
 - Testing: manual Joomla install + sample QR scan; automate everything else
   (lint, ZIP completeness, hashes).
 
@@ -41,8 +42,8 @@ result popup. This plan documents the Technical Stack and the design artifacts.
   the Chrome + Firefox + Safari-mobile requirement — see `research.md` R9).
   Source: `@taluks/html5-qrcode` fork (GitHub: `taluks/html5-qrcode`), version 2.3.9.
 - Efficiency config (see R11): constructor
-  `{ formatsToSupport: [QR_CODE] }`; start `{ fps: 1, qrbox: 250×250,
-  disableFlip: true }`; native detector left at default-on.
+  `{ formatsToSupport: [QR_CODE] }`; start `{ fps: scan_fps (default 2, range
+  1–10), qrbox: 250×250, disableFlip: true }`; native detector left at default-on.
 - Camera default: `{ facingMode: { exact: "environment" } }` (back camera, zero
   user choice); fallback: `getCameras()` label match → first device; persist
   chosen `deviceId` in `localStorage`. Cycling via `stop()` + `start()` next
@@ -89,8 +90,9 @@ result popup. This plan documents the Technical Stack and the design artifacts.
 - Entry `mod_event_qrscan.php`: `defined('_JEXEC') or die`, EB bootstrap +
   `getConfig()` (guarded; error message + stop if check-in URL unavailable),
   read `$params->get('checkin_interval', 2000)`,
-  `->get('ticket_max_length', 32)`, `addScriptOptions` +
-  `ModuleHelper::getLayoutPath('mod_event_qrscan', $params->get('layout', 'default'))`.
+  `->get('ticket_max_length', 32)`, `->get('scan_fps', 2)` (clamped 1–10,
+  fallback 2), `addScriptOptions` +
+  `ModuleHelper::getLayoutPath('mod_event_qrscan', 'default')`.
   Requires com_eventbooking installed (friendly message otherwise).
 - Optional namespaced `Helper/EventQrscanHelper.php` for params/validation.
   No new DB tables. Auth: logged-in user.
@@ -106,9 +108,14 @@ tmpl/default.php                # div#reader + Start/Stop + Switch-camera + rend
 Helper/EventQrscanHelper.php    # namespace must match manifest <namespace> (verified by T11 gate)
 language/en-GB/mod_event_qrscan.ini
 language/en-GB/mod_event_qrscan.sys.ini
+language/nl-NL/nl-NL.mod_event_qrscan.ini
+language/nl-NL/nl-NL.mod_event_qrscan.sys.ini
+language/nl-NL/index.html
 js/site-checkin-default.js
 js/site-checkin-default.min.js  # via uglifyjs
 js/html5-qrcode.min.js          # vendored @taluks/html5-qrcode 2.3.9, cloned directly into Joomla media dir; pinned (no CDN); version+sha256 recorded in README
+js/zxing_reader.wasm            # required by vendored @taluks/html5-qrcode decoder (media dir per T7a/T022; covered by ZIP js/ gate)
+js/index.html                   # directory-listing guard for vendored decoder dir (media dir per T022)
 update/mod_event_qrscan.xml     # SOURCE install manifest (with <version>{VERSION} placeholder)
 update/event_qrscan_update.xml  # template with {VERSION}
 build.py                        # python build.py <version>
@@ -118,9 +125,9 @@ LICENSE, README.md
 
 Manifest convention: source = `update/mod_event_qrscan.xml`, built = root `mod_event_qrscan.xml`; update template = `update/event_qrscan_update.xml` → built root `event_qrscan_update.xml`. See `contracts/build.md`.
 FR8 lock + dedup authoritative definition: `data-model.md` (`ProcessingLock`, `ScanDedup`); this plan summarizes only.
+i18n additions (merged from `001-dutch`, FR-12…FR-16): `language/nl-NL/nl-NL.mod_event_qrscan.ini` (20 keys) + `nl-NL.mod_event_qrscan.sys.ini` + `index.html`; JS messages via `addScriptOptions`/`Joomla.getOptions` (R13); no manifest change (`<folder>language</folder>` covers nl-NL); en-GB fallback for missing keys.
 
 ### 3.5 Build (`build.py <semver>`, port of Event-summary `build.py`)
-
 1. `minify_js()`: delete stale `*.min.js` EXCLUDING `js/html5-qrcode.min.js`, `uglifyjs js/site-checkin-default.js -o js/site-checkin-default.min.js`. The vendored `js/html5-qrcode.min.js` is never touched — it is cloned pre-minified and included as-is.
 2. Lint gate (fail-fast, non-zero exit): `php -l`, `node --check`,
    `ET.parse` all XMLs, manifest required fields
@@ -156,7 +163,7 @@ See `research.md` (Decision / Rationale / Alternatives per item).
 ## 6. Phase 1: Design → `data-model.md`, `contracts/`, `quickstart.md`
 
 - `data-model.md`: entities, validation, state transitions.
-- `contracts/checkin-api.md`, `module-params.md`, `update-xml.md`, `build.md`.
+- `contracts/checkin-api.md`, `module-params.md`, `update-xml.md`, `build.md`, `language-files.md`.
 - `quickstart.md`: automatable gates + manual Joomla/scan checklist.
 
 ## 7. Post-design Constitution Re-check
@@ -168,3 +175,11 @@ automated gates add no volunteer burden.
 
 EB backend changes, auth system, native apps, multi-modals, analytics,
 availability/uptime of the underlying platform.
+EB-backend check-in messages stay untranslated (R17).
+Dutch translations accepted as-is; native-speaker review out of scope.
+
+## 9. Dutch translation support (merged from `001-dutch-translation-support`)
+
+Every user-visible string resolves through Joomla's language system (built-in text or module ini keys); complete nl-NL translation ships with the module (20 keys, `%s` preserved). Approach: keep the existing `JText`/`addScriptOptions` pattern — pass the hardcoded JavaScript messages as script options from `mod_event_qrscan.php`, add `language/nl-NL/` ini + sys.ini mirroring en-GB, rely on Joomla's automatic en-GB fallback. No manifest change, no new dependencies.
+Minification reaffirmed (C1): `uglifyjs` runs inside `build.py`; `tasks.md` T021 is superseded.
+Future improvement (noted): manual `build.py` + hand-installed ZIP + manual language passes as user-testing method is unsatisfactory — consider automated install/smoke checks.

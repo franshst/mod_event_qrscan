@@ -50,13 +50,13 @@
 					default="text-danger"
 				/>
 				<field
-					name="layout"
-					type="list"
-					label="MOD_EVENT_QRSCAN_LAYOUT"
-					default="default"
-				>
-					<option value="default">Default</option>
-				</field>
+					name="scan_fps"
+					type="integer"
+					label="MOD_EVENT_QRSCAN_SCAN_FPS"
+					default="2"
+					min="1"
+					max="10"
+				/>
 			</fieldset>
 		</fields>
 	</config>
