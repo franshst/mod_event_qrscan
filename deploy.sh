@@ -10,8 +10,12 @@ case "$part" in
 esac
 
 latest="$(gh release list --limit 1 --json tagName --jq '.[0].tagName')"
+published="$(gh release list --limit 1 --json publishedAt --jq '.[0].publishedAt')"
 if [ -z "$latest" ] || [ "$latest" = "null" ]; then
   latest="0.0.0"
+fi
+if [ "$published" = "null" ]; then
+  published=""
 fi
 
 major="${latest%%.*}"
@@ -32,7 +36,11 @@ python3 build.py "$new"
 
 notes=""
 if git fetch origin tag "$latest" 2>/dev/null && git rev-parse --verify "$latest" >/dev/null 2>&1; then
-  notes="$(git log "$latest"..HEAD --format='- %s')"
+  if [ -n "$published" ]; then
+    notes="$(git log --since="$published" "$latest"..HEAD --format='- %s')"
+  else
+    notes="$(git log "$latest"..HEAD --format='- %s')"
+  fi
 fi
 if [ -z "$notes" ]; then
   notes="Bug fixes and improvements."

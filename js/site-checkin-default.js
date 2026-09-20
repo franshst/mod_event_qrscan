@@ -414,6 +414,9 @@
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {
+		if (typeof configureZxingWasm !== 'undefined' && typeof ZxingWasmLoadMode !== 'undefined') {
+			configureZxingWasm({ loadMode: ZxingWasmLoadMode.SAME_DIRECTORY });
+		}
 		var ctorConfig = { verbose: true }; /* TEMPORARY-DEBUG: lib internals to console */
 		if (typeof Html5QrcodeSupportedFormats !== 'undefined' && Html5QrcodeSupportedFormats.QR_CODE !== undefined) {
 			ctorConfig.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
