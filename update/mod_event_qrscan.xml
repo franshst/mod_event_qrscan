@@ -50,7 +50,7 @@
 				/>
 				<field
 					name="scan_fps"
-					type="integer"
+					type="number"
 					label="MOD_EVENT_QRSCAN_SCAN_FPS"
 					default="2"
 					min="1"
