@@ -95,7 +95,7 @@
 			if (text.length > maxLength) return false;
 			return true;
 		},
-		getErrorMessage: function (caseName) {
+		getErrorMessage: function (caseName, param) {
 			var messages = {
 				no_camera: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_NO_CAMERA', 'No camera available.'),
 				camera_busy: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_CAMERA_BUSY', 'Camera is in use by another application.'),
@@ -105,7 +105,7 @@
 				eb_absent: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_EB_ABSENT', 'Error while communicating with check-in service, error code is %s'),
 				unknown: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_UNKNOWN', 'An error occurred')
 			};
-			return messages[caseName] || messages.unknown;
+			return (messages[caseName] || messages.unknown).replace('%s', param !== undefined ? String(param) : '%s');
 		}
 	};
 
@@ -381,8 +381,12 @@
 					playSound(false);
 				}
 			},
-			onError: function () {
-				showModal(EventQrscanHelper.getErrorMessage('offline'), 'warning');
+			onError: function (xhr) {
+				if (xhr && xhr.status) {
+					showModal(EventQrscanHelper.getErrorMessage('eb_absent', xhr.status), 'warning');
+				} else {
+					showModal(EventQrscanHelper.getErrorMessage('offline'), 'warning');
+				}
 				playSound(false);
 			}
 		});
@@ -461,7 +465,7 @@
 		}
 
 		if (!checkinUrl) {
-			showModal(EventQrscanHelper.getErrorMessage('eb_absent'), 'warning');
+			showModal(EventQrscanHelper.getErrorMessage('eb_absent', 'unknown'), 'warning');
 			return;
 		}
 
