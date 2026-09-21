@@ -28,6 +28,7 @@
 
 	let scanner = null;
 	let isProcessing = false;
+	let userStopped = false;
 	let currentCameraIndex = 0;
 	let cameras = [];
 	let lastCameraQueryError = null;
@@ -160,6 +161,7 @@
 
 	function startScanner(deviceId) {
 		if (!scanner) return;
+		userStopped = false;
 		hideInlineFallback();
 		setStartButtonLabel(stopLabel);
 		var lastStartError = null;
@@ -248,6 +250,7 @@
 
 	function stopScanner() {
 		qrscanLog('stopScanner', 'called');
+		userStopped = true;
 		setStartButtonLabel(startLabel);
 		if (!scanner) return;
 		try {
@@ -267,41 +270,53 @@
 	function lockScanner() {
 		if (!scanner) return;
 		try {
-			var result = scanner.stop();
-			if (result && typeof result.catch === 'function') {
-				result.catch(function () {});
+			if (typeof scanner.getState === 'function'
+				&& scanner.getState() === Html5QrcodeScannerState.SCANNING) {
+				scanner.pause(true);
 			}
 		} catch (e) {
+			qrscanLog('lockScanner', 'pause failed, flag-only fallback');
 			/* ignore — isProcessing flag remains the request guard */
 		}
-		enforceVideoStop();
 	}
 
-	function enforceVideoStop() {
+	function restartScanner() {
 		try {
-			var videos = document.querySelectorAll('#reader video');
-			for (var i = 0; i < videos.length; i++) {
-				var v = videos[i];
-				try { v.pause(); } catch (e) {}
-				try {
-					var stream = v.srcObject;
-					if (stream && typeof stream.getTracks === 'function') {
-						stream.getTracks().forEach(function (t) {
-							try { t.stop(); } catch (e) {}
-						});
-					}
-				} catch (e) {}
-			}
-		} catch (e) { /* ignore */ }
-	}
-
-	function unlockScanner() {
-		if (!scanner || document.hidden) return;
+			stopScanner();
+		} catch (e) {
+			/* ignore */
+		}
+		userStopped = false;
 		try {
 			startScanner(getCurrentDeviceId());
 		} catch (e) {
 			/* ignore */
 		}
+	}
+
+	function unlockScanner() {
+		if (!scanner || document.hidden) return;
+		if (userStopped) return;
+		var state = null;
+		try {
+			if (typeof scanner.getState === 'function') {
+				state = scanner.getState();
+			}
+		} catch (e) {
+			/* ignore */
+		}
+		if (state === Html5QrcodeScannerState.PAUSED) {
+			try {
+				scanner.resume();
+			} catch (e) {
+				qrscanLog('unlockScanner', 'resume failed, attempting restart');
+				restartScanner();
+			}
+		} else if (state !== Html5QrcodeScannerState.SCANNING) {
+			qrscanLog('unlockScanner', 'not paused, attempting restart');
+			restartScanner();
+		}
+		/* state SCANNING (pause never engaged — flag-only mode): nothing to do */
 	}
 
 	function cycleCamera() {
