@@ -36,7 +36,7 @@ Prereqs: Dutch (nl-NL) language pack installed on the test site.
 ### C1. Automated i18n gates
 
 ```bash
-php -l mod_event_qrscan.php && php -l Helper/EventQrscanHelper.php
+php -l mod_event_qrscan.php
 node --check js/site-checkin-default.js
 python build.py <semver>   # must exit 0; ZIP contains language/nl-NL/
 ```

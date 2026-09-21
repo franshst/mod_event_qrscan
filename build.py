@@ -44,7 +44,7 @@ def step2_lint(version):
     import subprocess
 
     print("  Lint: php -l...")
-    for php_file in ['mod_event_qrscan.php', 'Helper/EventQrscanHelper.php']:
+    for php_file in ['mod_event_qrscan.php']:
         result = subprocess.run(['php', '-l', str(ROOT / php_file)],
                                 capture_output=True, text=True)
         if result.returncode != 0:
@@ -121,7 +121,7 @@ def step4_create_zip(version):
         shutil.rmtree(tmp_dir)
     tmp_dir.mkdir()
 
-    folders = ['tmpl', 'language', 'Helper', 'js']
+    folders = ['tmpl', 'language', 'js']
     files = ['mod_event_qrscan.php', 'mod_event_qrscan.xml', 'LICENSE', 'index.html']
 
     for folder in folders:
@@ -144,7 +144,7 @@ def step4_create_zip(version):
 def step5_completeness_assert(zip_path):
     import zipfile
     required = ['mod_event_qrscan.php', 'tmpl/default.php',
-                'Helper/EventQrscanHelper.php', 'js/site-checkin-default.js',
+                'js/site-checkin-default.js',
                 'js/site-checkin-default.min.js', 'js/html5-qrcode.min.js']
     with zipfile.ZipFile(zip_path, 'r') as zf:
         names = zf.namelist()

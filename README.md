@@ -78,9 +78,8 @@ The Joomla Update System is configured via `event_qrscan_update.xml`. When a new
 
 1. **Verify prerequisites** — ensure all lint gates pass:
    ```bash
-   php -l mod_event_qrscan.php
-   php -l Helper/EventQrscanHelper.php
-   node --check js/site-checkin-default.js
+    php -l mod_event_qrscan.php
+    node --check js/site-checkin-default.js
    ```
 
 2. **Build and publish the release** — run `deploy.sh`, which automates the whole flow:

@@ -93,8 +93,8 @@ result popup. This plan documents the Technical Stack and the design artifacts.
   `->get('ticket_max_length', 32)`, `->get('scan_fps', 2)` (clamped 1–10,
   fallback 2), `addScriptOptions` +
   `ModuleHelper::getLayoutPath('mod_event_qrscan', 'default')`.
-  Requires com_eventbooking installed (friendly message otherwise).
-- Optional namespaced `Helper/EventQrscanHelper.php` for params/validation.
+   Requires com_eventbooking installed (friendly message otherwise).
+- `Helper/` removed per T056 (was optional, zero callers; all params read inline in the entry).
   No new DB tables. Auth: logged-in user.
 - Validation: alphanumeric + limited length client-side; functional errors as
   JSON `{success, message}` from check-in module.
@@ -105,7 +105,6 @@ result popup. This plan documents the Technical Stack and the design artifacts.
 mod_event_qrscan.php
 mod_event_qrscan.xml            # BUILT artifact: stamped from update/mod_event_qrscan.xml by build.py (do not edit directly)
 tmpl/default.php                # div#reader + Start/Stop + Switch-camera + renderModal(qrscanModal)
-Helper/EventQrscanHelper.php    # namespace must match manifest <namespace> (verified by T11 gate)
 language/en-GB/mod_event_qrscan.ini
 language/en-GB/mod_event_qrscan.sys.ini
 language/nl-NL/nl-NL.mod_event_qrscan.ini
@@ -134,7 +133,7 @@ i18n additions (merged from `001-dutch`, FR-12…FR-16): `language/nl-NL/nl-NL.m
    (`name`, `version == arg`, `namespace`, `checkin_interval`,
    `ticket_max_length`).
 3. `copy_and_update_mod_xml()`: copy manifest source, stamp `<version>`.
-4. `create_zip()`: temp dir + copy `tmpl/, language/, Helper/, js/` +
+4. `create_zip()`: temp dir + copy `tmpl/, language/, js/` +
    `LICENSE` + manifest + `*.php` → `shutil.make_archive`.
 5. ZIP completeness gate: assert required entries present, no temp dirs,
    no template leakage.

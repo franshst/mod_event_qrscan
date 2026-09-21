@@ -14,7 +14,6 @@
 		<filename module="mod_event_qrscan">mod_event_qrscan.php</filename>
 		<filename>index.html</filename>
 		<folder>tmpl</folder>
-		<folder>Helper</folder>
 		<folder>language</folder>
 		<folder>js</folder>
 	</files>
