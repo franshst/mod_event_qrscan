@@ -110,10 +110,25 @@ NOTE: there is no T6 — the ID was never assigned (Phase 2 jumps T5 → T7a); I
 
 > Sequence with Phase 11: T047 touches the same manifest/ini/README files as T041/T043–T045 — run Phase 12 after Phase 11, or merge conflicting edits.
 
-- [X] T047 Add `scan_fps` integer field to SOURCE manifest `update/mod_event_qrscan.xml` (`type="integer"`, `label="MOD_EVENT_QRSCAN_SCAN_FPS"`, `default="2"`, `min="1"`, `max="10"`; verify `integer` min/max on target Joomla 5, fallback `number`/`text`) — after T041
+- [X] T047 Add `scan_fps` number field to SOURCE manifest `update/mod_event_qrscan.xml` (`type="number"`, `label="MOD_EVENT_QRSCAN_SCAN_FPS"`, `default="2"`, `min="1"`, `max="10"`; `integer` was specified in error, corrected per T054) — after T041
 - [X] T048 Read/clamp/inject scan FPS in `mod_event_qrscan.php` (`(int) $params->get('scan_fps', 2)`, clamp 1–10 fallback 2, `$doc->addScriptOptions('scanFps', $scanFps)`) — after T042
 - [X] T049 Use configured FPS in `js/site-checkin-default.js` (`const scanFps = Joomla.getOptions('scanFps', 2)` with 1–10 clamp fallback 2; `efficiencyConfig` uses `fps: scanFps` instead of hardcoded 2; keep `qrbox`/`disableFlip`)
 - [X] T050 [P] Add `MOD_EVENT_QRSCAN_SCAN_FPS="Scan FPS"` to `language/en-GB/en-GB.mod_event_qrscan.ini` — after T043
 - [X] T051 [P] Add `MOD_EVENT_QRSCAN_SCAN_FPS="Scan-FPS"` to `language/nl-NL/nl-NL.mod_event_qrscan.ini` (confirm Dutch wording) — after T044
 - [X] T052 [P] Update docs for scan FPS: add `scan_fps` row + `scanFps` JS key in `specs/qr-scan-module/contracts/module-params.md`, update efficiency config in `specs/qr-scan-module/plan.md` (§3.1/§3.3), validation rule in `specs/qr-scan-module/data-model.md`, params table + `fps: 1` fix in `README.md` — after T045
 - [X] T053 Run validation for scan FPS: `php -l mod_event_qrscan.php`, `node --check js/site-checkin-default.js`, `ET.parse update/mod_event_qrscan.xml`, key-parity probe en-GB↔nl-NL, `python build.py <semver>` exit 0, manual check (admin sets fps 5 → scans; invalid value → fallback 2) — depends on T047–T052
+
+## Phase 13: Convergence (2026-09-21 user triage)
+
+> User decisions: F1 record `number` as correct type (spec `integer` was in error); F2/F3/U2 marked as separate sort-out issues; F4/F5 do as recommended; F6 remove `bad_key`; U1 keep debug scaffolding until F2 is resolved (no task); U4 documented retroactively as completed; U5 `reference/` is unreferenced (grep `reference/` repo-wide: no hits).
+
+- [X] T054 Correct `scan_fps` field-type docs from `integer` to `number` in `spec.md` (Session 2026-09-20 clarification), `plan.md`, `contracts/module-params.md`, and T047 wording; code (`type="number"` in `update/mod_event_qrscan.xml`) stays as-is per FR-4 (partial)
+- [ ] T055 Sort out ProcessingLock mechanism as separate issue: reconcile `stop()`+`enforceVideoStop()`+restart in `lockScanner()`/`unlockScanner()` with the specified guarded `pause(true)`/`resume()` via `getState()`; keep `QRSCAN_DEBUG`/`qrscanLog`/`verbose:true` scaffolding until this is resolved per FR-8 / R9 / data-model `ProcessingLock` (contradicts)
+- [ ] T056 Sort out PHP `Helper/EventQrscanHelper.php`: decide whether a helper class is needed at all (currently uncalled, global class vs manifest `<namespace>EventQRScan</namespace>`); either namespace/wire it or delete it, and complete or drop its partial `getErrorMessage()` map (missing `camera_busy`) per plan §3.3–§3.4 (partial)
+- [X] T057 Make FR-6 inline fallback non-destructive in `js/site-checkin-default.js` (sibling/hide-show div instead of `replaceChild` destroying `#reader`) so the scanner can restart and the single-visible-surface rule holds per FR-6 (partial)
+- [X] T058 Map unparseable EB JSON response to the `unknown` error case instead of `invalid_qr` in `onSuccess` catch path in `js/site-checkin-default.js` per SC-5 (partial)
+- [X] T059 Remove the unused `bad_key` message path from JS `getErrorMessage`, `addScriptOptions` wiring in `mod_event_qrscan.php`, en-GB/nl-NL ini keys, and spec/contract docs (SC-5 union, FR-13 table, `contracts/module-params.md`, `data-model.md` key inventory); invalid ticket codes are reported via check-in JSON `message` per SC-5 (unrequested)
+- [ ] T060 Sort out camera-detection fallback chain in `js/site-checkin-default.js` (multi-candidate retry, re-enumeration on empty list, post-failure recount, `isPermissionError` short-circuit): verify with field evidence whether the no-enumerated-cameras case really occurs and drop superfluous branches per plan §3.1 / R10 (unrequested)
+- [X] T061 Document pop-up visibility requirement in `spec.md` (FR-6): result modal top must not render higher than the first HTML element (currently the video element), i.e. fully visible without scrolling per FR-6 (missing)
+- [X] T062 Document `deploy.sh` release tooling (already implemented: semver-bump arg default patch, latest-tag lookup via gh, notes from `git log`, `gh release create`) — retroactive record, no code change; admitted to scope to avoid untracked-tooling remarks per plan §3 / SC build-gate (unrequested)
+- [X] T063 Remove unreferenced `reference/` dev copy (repo-wide grep for `reference/` returns no hits; user-supplied working example, not part of build/ZIP) per plan §3.4 file structure (unrequested)

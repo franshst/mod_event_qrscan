@@ -28,30 +28,35 @@
 					name="checkin_interval"
 					type="text"
 					label="MOD_EVENT_QRSCAN_CHECKIN_INTERVAL"
+					descriptioin="Waiting time between a scan of a group ticket with multiple check-ins"
 					default="2000"
 				/>
 				<field
 					name="ticket_max_length"
 					type="text"
 					label="MOD_EVENT_QRSCAN_TICKET_MAX_LENGTH"
+					description="length check of ticket code"
 					default="32"
 				/>
 				<field
 					name="text_success_class"
 					type="text"
 					label="MOD_EVENT_QRSCAN_TEXT_SUCCESS_CLASS"
+					description="class of displayed text when scan is success"
 					default="text-success"
 				/>
 				<field
 					name="text_warning_class"
 					type="text"
 					label="MOD_EVENT_QRSCAN_TEXT_WARNING_CLASS"
+					description="class of displayed text when scan is a failure"
 					default="text-danger"
 				/>
 				<field
 					name="scan_fps"
 					type="number"
 					label="MOD_EVENT_QRSCAN_SCAN_FPS"
+					description="frames per second of scanning. Decrease for less battery drain, increase for responsiveness"
 					default="2"
 					min="1"
 					max="10"

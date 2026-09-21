@@ -14,15 +14,15 @@ full URL via `Route::_()`. A missing api key is an error condition.
 | `ticket_max_length` | no | `32` | Max ticket code chars (alphanumeric pre-validation). |
 | `text_success_class` | no | `text-success` | Bootstrap 5 text utility class for success body (no module CSS). |
 | `text_warning_class` | no | `text-danger` | Bootstrap 5 text utility class for warning/error body (no module CSS). |
-| `scan_fps` | no | `2` | Scan attempts per second (`fps` in `start()` efficiency config). Integer 1–10; out-of-range falls back to 2. |
+| `scan_fps` | no | `2` | Scan attempts per second (`fps` in `start()` efficiency config). Number 1–10; out-of-range falls back to 2. |
 
 JS option keys: `checkinUrl`, `checkInInterval`, `ticketMaxLength`,
 `successAudioUrl`, `failAudioUrl`, `textSuccessClass`, `textWarningClass`,
 `scanFps`
 (Check-in URL constructed server-side from EB `getConfig()`; sound URLs are EB shipped files referenced in place.)
-Plus the 7 i18n message keys wired via `addScriptOptions` (FR-14/R13, English values are `Joomla.getOptions` fallbacks only):
+Plus the 6 i18n message keys wired via `addScriptOptions` (FR-14/R13, English values are `Joomla.getOptions` fallbacks only):
 `MOD_EVENT_QRSCAN_ERROR_NO_CAMERA`, `MOD_EVENT_QRSCAN_ERROR_CAMERA_BUSY`,
 `MOD_EVENT_QRSCAN_ERROR_OFFLINE`, `MOD_EVENT_QRSCAN_ERROR_INVALID_QR`,
-`MOD_EVENT_QRSCAN_ERROR_BAD_KEY`, `MOD_EVENT_QRSCAN_ERROR_EB_ABSENT`,
+`MOD_EVENT_QRSCAN_ERROR_EB_ABSENT`,
 `MOD_EVENT_QRSCAN_ERROR_UNKNOWN` (one per JS `getErrorMessage` case).
 `MOD_EVENT_QRSCAN_ERROR_CHECKIN_CONFIG` is resolved PHP-side via `JText::_()` directly (missing-EB error, no scanner), not via script options.

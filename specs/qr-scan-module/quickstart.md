@@ -21,7 +21,7 @@ browser with camera permission, printed/sample QR (e.g. `Z8GiIIIKzOKwbvO6`).
 3. Open frontend → allow camera → cycle cameras (default Back) → Start.
 4. Scan sample QR → Bootstrap modal, correct style + EB success sound.
     See `contracts/checkin-api.md`, `data-model.md`.
-5. Negatives: no camera; camera in use; offline; invalid QR (non-alphanumeric/overlong); bad key; EB component disabled; unknown — expected messages: no camera → "No camera available."; camera in use → "Camera is in use by another application."; offline → "No network, check-in service unavailable"; invalid QR → "This seems not to be a ticket QR code"; bad key → check-in module's own message; EB absent → "Error while communicating with check-in service, error code is %s"; unknown → "An error occurred". Each gives clear text, no `alert()`, EB fail sound where applicable.
+5. Negatives: no camera; camera in use; offline; invalid QR (non-alphanumeric/overlong); EB component disabled; unknown — expected messages: no camera → "No camera available."; camera in use → "Camera is in use by another application."; offline → "No network, check-in service unavailable"; invalid QR → "This seems not to be a ticket QR code"; invalid ticket code → check-in module's own JSON message; EB absent → "Error while communicating with check-in service, error code is %s"; unknown → "An error occurred". Each gives clear text, no `alert()`, EB fail sound where applicable.
     FR8 lock: present a second QR while the result modal is still open → no second request may appear in devtools Network (single request only).
 6. Dedup: rescan same code < 2 s → suppressed; after → sent
    (devtools Network shows fresh `&t=`).

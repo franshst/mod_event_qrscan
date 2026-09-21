@@ -193,7 +193,7 @@ Format: Decision / Rationale / Alternatives.
 
 ## R13. JS message sourcing via `addScriptOptions` (existing pattern)
 
-- Decision: Pass each JavaScript-displayed message (`no_camera`, `camera_busy`, `offline`, `invalid_qr`, `bad_key`, `eb_absent`, `unknown`) from `mod_event_qrscan.php` via `$doc->addScriptOptions()` with `JText::_()` resolution, exactly as `MOD_EVENT_QRSCAN_START`/`STOP` are already passed; `EventQrscanHelper.getErrorMessage()` in `js/site-checkin-default.js` reads them via `Joomla.getOptions()` with the current English literals kept only as code fallbacks.
+- Decision: Pass each JavaScript-displayed message (`no_camera`, `camera_busy`, `offline`, `invalid_qr`, `eb_absent`, `unknown`) from `mod_event_qrscan.php` via `$doc->addScriptOptions()` with `JText::_()` resolution, exactly as `MOD_EVENT_QRSCAN_START`/`STOP` are already passed; `EventQrscanHelper.getErrorMessage()` in `js/site-checkin-default.js` reads them via `Joomla.getOptions()` with the current English literals kept only as code fallbacks.
 - Rationale: Zero new mechanisms — the file already resolves two button labels this way, so translators, caching, and overrides behave identically for all strings; no `Joomla.Text` script dependency or `Text::script()` plumbing needed.
 - Alternatives: `Joomla.Text._()` + `Text::script()` — rejected (requires loading core text scripts and reworking every call site for no user-visible gain).
 

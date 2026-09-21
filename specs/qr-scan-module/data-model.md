@@ -86,12 +86,12 @@ A single translatable display text, identified by key.
 
 - Fields:
   - `tag` (enum: `en-GB`, `nl-NL`), `scope` (site ini | sys ini), `path` (`language/<tag>/<tag>.mod_event_qrscan[.sys].ini`).
-  - `keys`: full key set for site ini (20 keys); sys ini carries the description key.
+  - `keys`: full key set for site ini (19 keys); sys ini carries the description key.
 - State transitions: none (static shipped files). Lifecycle: added at build → installed via `<folder>language</folder>` → resolved at runtime by Joomla core, en-GB fallback when a key is absent.
 
-## Key inventory (language keys, 20 keys)
+## Key inventory (language keys, 19 keys)
 
-`MOD_EVENT_QRSCAN_AIM_INSTRUCTION`, `_START`, `_STOP`, `_SWITCH_CAMERA`, `_RESULT`, `_CLOSE`, `_ERROR_NO_CAMERA`, `_ERROR_CAMERA_BUSY`, `_ERROR_OFFLINE`, `_ERROR_INVALID_QR`, `_ERROR_BAD_KEY`, `_ERROR_EB_ABSENT`, `_ERROR_UNKNOWN`, `_ERROR_CHECKIN_CONFIG`, `_XML_DESCRIPTION`, `_CHECKIN_INTERVAL`, `_TICKET_MAX_LENGTH`, `_TEXT_SUCCESS_CLASS`, `_TEXT_WARNING_CLASS`, `_SCAN_FPS` (20 keys; sys ini: `_XML_DESCRIPTION`).
+`MOD_EVENT_QRSCAN_AIM_INSTRUCTION`, `_START`, `_STOP`, `_SWITCH_CAMERA`, `_RESULT`, `_CLOSE`, `_ERROR_NO_CAMERA`, `_ERROR_CAMERA_BUSY`, `_ERROR_OFFLINE`, `_ERROR_INVALID_QR`, `_ERROR_EB_ABSENT`, `_ERROR_UNKNOWN`, `_ERROR_CHECKIN_CONFIG`, `_XML_DESCRIPTION`, `_CHECKIN_INTERVAL`, `_TICKET_MAX_LENGTH`, `_TEXT_SUCCESS_CLASS`, `_TEXT_WARNING_CLASS`, `_SCAN_FPS` (19 keys; sys ini: `_XML_DESCRIPTION`).
 
 ## Relationships
 

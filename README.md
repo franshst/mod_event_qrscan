@@ -50,7 +50,7 @@ All error messages are displayed in the modal or inline fallback — never via `
 | **Ticket Max Length** | `32` | Maximum allowed length of the ticket code (alphanumeric only). QR codes exceeding this length are rejected client-side before any network request is made. |
 | **Success Text Class** | `text-success` | Bootstrap 5 text utility class applied to the modal body when the check-in succeeds. Common values: `text-success` (green), `text-primary` (blue). |
 | **Warning Text Class** | `text-danger` | Bootstrap 5 text utility class applied to the modal body when the check-in fails or an error occurs. Common values: `text-danger` (red), `text-warning` (yellow). |
-| **Scan FPS** | `2` | Scan attempts per second. Integer 1–10; out-of-range values fall back to 2. |
+| **Scan FPS** | `2` | Scan attempts per second. Number 1–10; out-of-range values fall back to 2. |
 
 ### Endpoints and sounds
 

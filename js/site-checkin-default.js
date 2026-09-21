@@ -43,8 +43,20 @@
 		}
 	}
 
+	function hideInlineFallback() {
+		var fallback = document.getElementById('qrscan-fallback');
+		if (fallback) {
+			fallback.style.display = 'none';
+		}
+		var reader = document.getElementById('reader');
+		if (reader) {
+			reader.style.display = '';
+		}
+	}
+
 	function showModal(message, type) {
 		qrscanLog('showModal', 'type=' + type);
+		hideInlineFallback();
 		const modalBody = document.querySelector('.modal-body');
 		if (!modalBody) return;
 		modalBody.textContent = message;
@@ -66,12 +78,18 @@
 			}
 			modalInstance.show();
 		} else {
-			const reader = document.getElementById('reader');
+			var reader = document.getElementById('reader');
 			if (reader) {
-				const fallback = document.createElement('div');
+				reader.style.display = 'none';
+				var fallback = document.getElementById('qrscan-fallback');
+				if (!fallback) {
+					fallback = document.createElement('div');
+					fallback.id = 'qrscan-fallback';
+					reader.parentNode.insertBefore(fallback, reader.nextSibling);
+				}
 				fallback.className = type === 'success' ? textSuccessClass : textWarningClass;
 				fallback.textContent = message;
-				reader.parentNode.replaceChild(fallback, reader);
+				fallback.style.display = '';
 				isProcessing = false;
 			}
 		}
@@ -101,7 +119,6 @@
 				camera_busy: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_CAMERA_BUSY', 'Camera is in use by another application.'),
 				offline: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_OFFLINE', 'No network, check-in service unavailable'),
 				invalid_qr: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_INVALID_QR', 'This seems not to be a ticket QR code'),
-				bad_key: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_BAD_KEY', 'Invalid ticket code'),
 				eb_absent: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_EB_ABSENT', 'Error while communicating with check-in service, error code is %s'),
 				unknown: Joomla.getOptions('MOD_EVENT_QRSCAN_ERROR_UNKNOWN', 'An error occurred')
 			};
@@ -143,6 +160,7 @@
 
 	function startScanner(deviceId) {
 		if (!scanner) return;
+		hideInlineFallback();
 		setStartButtonLabel(stopLabel);
 		var lastStartError = null;
 		var sawCameraBusy = false;
@@ -377,7 +395,7 @@
 						playSound(false);
 					}
 				} catch (e) {
-					showModal(EventQrscanHelper.getErrorMessage('invalid_qr'), 'warning');
+					showModal(EventQrscanHelper.getErrorMessage('unknown'), 'warning');
 					playSound(false);
 				}
 			},
