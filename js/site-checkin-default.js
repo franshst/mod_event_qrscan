@@ -29,6 +29,7 @@
 	let scanner = null;
 	let isProcessing = false;
 	let userStopped = false;
+	let labelsRefreshed = false;
 	let currentCameraIndex = 0;
 	let cameras = [];
 	let lastCameraQueryError = null;
@@ -132,11 +133,9 @@
 		return id;
 	}
 
-	function getCameraLabel(camera) {
-		var label = camera.label || '';
-		if (label.indexOf('environment') !== -1) return 'environment';
-		var match = label.match(/\(([^)]+)\)/);
-		return match ? match[1] : label;
+	function isBackCamera(camera) {
+		var label = (camera && camera.label) || '';
+		return /back|rear|environment/i.test(label);
 	}
 
 	function parseEmbeddedErrorName(error) {
@@ -164,53 +163,16 @@
 		userStopped = false;
 		hideInlineFallback();
 		setStartButtonLabel(stopLabel);
-		var lastStartError = null;
-		var sawCameraBusy = false;
-		if (cameras.length === 0) {
-			qrscanLog('startScanner', 'no enumerated cameras, re-enumerating');
-			try {
-				loadCameraPreferences().then(function () {
-					qrscanLog('startScanner', 're-enumeration done', 'found=' + cameras.length);
-					buildAndStart();
-				}).catch(function () {
-					buildAndStart();
-				});
-			} catch (e) {
-				buildAndStart();
-			}
-			return;
-		}
-		buildAndStart();
-		function buildAndStart() {
-		var candidates = [];
-		function addDeviceCandidate(id) {
-			if (!id) return;
-			var duplicate = candidates.some(function (c) { return c.deviceId && c.deviceId.exact === id; });
-			if (!duplicate) {
-				candidates.push({ deviceId: { exact: id } });
-			}
-		}
-		addDeviceCandidate(deviceId);
-		if (cameras.length > 0 && currentCameraIndex < cameras.length) {
-			addDeviceCandidate(getCameraDeviceId(cameras[currentCameraIndex]));
-		}
-		if (cameras.length > 0) {
-			addDeviceCandidate(getCameraDeviceId(cameras[0]));
-		}
-		candidates.push({ facingMode: { exact: 'environment' } });
 		var efficiencyConfig = { fps: scanFps, qrbox: { width: 250, height: 250 }, disableFlip: true };
-		qrscanLog('startScanner', 'candidates=' + JSON.stringify(candidates), 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
-		function showNoCamera() {
-			var busy = sawCameraBusy || isCameraBusyError(lastStartError) || isCameraBusyError(lastCameraQueryError);
-			qrscanLog('startScanner', 'all candidates exhausted', 'busy=' + busy);
+		var fallbackConfig = { facingMode: { exact: 'environment' } };
+		var preferredId = deviceId || getCurrentDeviceId();
+		var primaryConfig = preferredId ? { deviceId: { exact: preferredId } } : fallbackConfig;
+		var triedFallback = !preferredId;
+		qrscanLog('startScanner', 'primary=' + JSON.stringify(primaryConfig), 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
+		function showNoCamera(error) {
+			var busy = isCameraBusyError(error) || isCameraBusyError(lastCameraQueryError);
+			qrscanLog('startScanner', 'start failed', 'busy=' + busy);
 			setStartButtonLabel(startLabel);
-			try {
-				Html5Qrcode.getCameras().then(function (recount) {
-					qrscanLog('startScanner', 'post-failure recount', 'found=' + recount.length, 'labels=' + JSON.stringify(recount.map(function (c) { return c.label || ''; })));
-				}).catch(function () {
-					qrscanLog('startScanner', 'post-failure recount failed');
-				});
-			} catch (e) { /* ignore */ }
 			if (busy) {
 				showModal(EventQrscanHelper.getErrorMessage('camera_busy'), 'warning');
 			} else {
@@ -218,34 +180,25 @@
 			}
 			playSound(false);
 		}
-		function tryCandidate(index) {
-			if (index >= candidates.length) {
-				showNoCamera();
-				return;
-			}
-			scanner.start(candidates[index], efficiencyConfig, onScanSuccess, onScanFailure).then(function () {
-				qrscanLog('startScanner', 'attempt ok', 'config=' + JSON.stringify(candidates[index]));
+		function onStarted(config) {
+			qrscanLog('startScanner', 'attempt ok', 'config=' + JSON.stringify(config));
+			refreshCameraLabels();
+		}
+		function tryStart(config, isFallback) {
+			scanner.start(config, efficiencyConfig, onScanSuccess, onScanFailure).then(function () {
+				onStarted(config);
 			}).catch(function (error) {
-				lastStartError = error;
-				if (isCameraBusyError(error)) {
-					sawCameraBusy = true;
-				}
 				var errName = error ? error.name : String(error);
 				var errMsg = error ? error.message : String(error);
-				var errStr;
-				try { errStr = String(error); } catch (e) { errStr = '?'; }
-				var errJson;
-				try { errJson = JSON.stringify(error); } catch (e) { errJson = 'unstringifiable'; }
-				qrscanLog('startScanner', 'attempt failed', 'config=' + JSON.stringify(candidates[index]), 'name=' + errName, 'message=' + errMsg, 'string=' + errStr, 'json=' + errJson);
-				if (isPermissionError(error)) {
-					showNoCamera();
+				qrscanLog('startScanner', 'attempt failed', 'config=' + JSON.stringify(config), 'name=' + errName, 'message=' + errMsg);
+				if (isPermissionError(error) || isFallback) {
+					showNoCamera(error);
 					return;
 				}
-				tryCandidate(index + 1);
+				tryStart(fallbackConfig, true);
 			});
 		}
-		tryCandidate(0);
-		}
+		tryStart(primaryConfig, triedFallback);
 	}
 
 	function stopScanner() {
@@ -328,13 +281,17 @@
 		currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
 		var camera = cameras[currentCameraIndex];
 		var deviceId = getCameraDeviceId(camera);
+		persistCameraId(deviceId);
+		stopScanner();
+		setTimeout(function () { startScanner(deviceId); }, 100);
+	}
+
+	function persistCameraId(deviceId) {
 		try {
 			localStorage.setItem('qrscan_camera_id', deviceId);
 		} catch (e) {
 			/* ignore */
 		}
-		stopScanner();
-		setTimeout(function () { startScanner(deviceId); }, 100);
 	}
 
 	function loadCameraPreferences() {
@@ -355,13 +312,16 @@
 					return getCameraDeviceId(cameras[currentCameraIndex]);
 				}
 			} else {
-				var envMatch = cameras.find(function (c) { return getCameraLabel(c) === 'environment'; });
-				if (envMatch) {
-					currentCameraIndex = cameras.indexOf(envMatch);
+				var backMatch = cameras.find(function (c) { return isBackCamera(c); });
+				if (backMatch) {
+					currentCameraIndex = cameras.indexOf(backMatch);
+					persistCameraId(getCameraDeviceId(cameras[currentCameraIndex]));
 					return getCameraDeviceId(cameras[currentCameraIndex]);
 				}
 		}
 		if (cameras.length > 0) {
+			/* Blind fallback (labels typically empty pre-permission): do NOT
+			   persist — a blind guess must not pin the default for next session. */
 			currentCameraIndex = 0;
 			return getCameraDeviceId(cameras[0]);
 		}
@@ -371,6 +331,55 @@
 			lastCameraQueryError = err;
 			cameras = [];
 			return null;
+		});
+	}
+
+	function refreshCameraLabels() {
+		if (labelsRefreshed) return;
+		labelsRefreshed = true;
+		var savedDeviceId = null;
+		try {
+			savedDeviceId = localStorage.getItem('qrscan_camera_id');
+		} catch (e) {
+			/* ignore */
+		}
+		Html5Qrcode.getCameras().then(function (foundCameras) {
+			if (!foundCameras || foundCameras.length === 0) return;
+			var currentId = getCurrentDeviceId();
+			cameras = foundCameras;
+			qrscanLog('refreshCameraLabels', 'found=' + cameras.length, 'labels=' + JSON.stringify(cameras.map(function (c) { return c.label || ''; })));
+			if (currentId) {
+				var kept = cameras.find(function (c) { return getCameraDeviceId(c) === currentId; });
+				if (kept) {
+					currentCameraIndex = cameras.indexOf(kept);
+				}
+			}
+			if (!savedDeviceId) {
+				var current = cameras[currentCameraIndex];
+				var backIdx = -1;
+				for (var i = 0; i < cameras.length; i++) {
+					if (isBackCamera(cameras[i])) {
+						backIdx = i;
+						break;
+					}
+				}
+				if (backIdx >= 0 && backIdx !== currentCameraIndex && !(current && isBackCamera(current))) {
+					qrscanLog('refreshCameraLabels', 'adopting back camera at index ' + backIdx);
+					currentCameraIndex = backIdx;
+					persistCameraId(getCameraDeviceId(cameras[backIdx]));
+					if (!isProcessing && !document.hidden && scanner) {
+						try {
+							if (scanner.getState() === Html5QrcodeScannerState.SCANNING) {
+								restartScanner();
+							}
+						} catch (e) {
+							/* ignore */
+						}
+					}
+				}
+			}
+		}).catch(function () {
+			/* ignore — keep the pre-permission list */
 		});
 	}
 
