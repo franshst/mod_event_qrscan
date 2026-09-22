@@ -134,6 +134,9 @@
 	}
 
 	function isBackCamera(camera) {
+		if (camera && camera.facing === 'environment') {
+			return true;
+		}
 		var label = (camera && camera.label) || '';
 		return /back|rear|environment/i.test(label);
 	}

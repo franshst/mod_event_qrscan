@@ -27,7 +27,7 @@
 					name="checkin_interval"
 					type="text"
 					label="MOD_EVENT_QRSCAN_CHECKIN_INTERVAL"
-					descriptioin="Waiting time between a scan of a group ticket with multiple check-ins"
+					description="Waiting time between a scan of a group ticket with multiple check-ins"
 					default="2000"
 				/>
 				<field
