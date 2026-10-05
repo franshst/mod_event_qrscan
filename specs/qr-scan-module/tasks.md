@@ -132,3 +132,24 @@ NOTE: there is no T6 — the ID was never assigned (Phase 2 jumps T5 → T7a); I
 - [X] T061 Document pop-up visibility requirement in `spec.md` (FR-6): result modal top must not render higher than the first HTML element (currently the video element), i.e. fully visible without scrolling per FR-6 (missing)
 - [X] T062 Document `deploy.sh` release tooling (already implemented: semver-bump arg default patch, latest-tag lookup via gh, notes from `git log`, `gh release create`) — retroactive record, no code change; admitted to scope to avoid untracked-tooling remarks per plan §3 / SC build-gate (unrequested)
 - [X] T063 Remove unreferenced `reference/` dev copy (repo-wide grep for `reference/` returns no hits; user-supplied working example, not part of build/ZIP) per plan §3.4 file structure (unrequested)
+
+## Phase 14: Convergence (ponytail audit risk triage, 2026-10-05)
+
+> Each ponytail cut was checked against spec/plan/tasks + constitution + iOS-Safari constraint (no native `BarcodeDetector`; `html5-qrcode`+WASM stay). Conflicts become assess-only tasks below — do NOT execute the removal until the assessment explicitly clears it. Style-only items (JS helper unwrap, `getCameraDeviceId` inline, `argparse`) carry no spec value and get no task.
+
+- [X] T064 Remove tracked legacy `mod_event_qrscan_1.0.0.zip` via `git rm` (violates `*.zip` gitignore, regenerable with `python build.py <semver>`) per plan §3.4 file structure (unrequested)
+- [X] T065 Remove empty tracked `update/mod_event_qrscan/` directory (not in plan §3.4 file structure; `ls` shows only `.`/`..`) per plan §3.4 (unrequested)
+- [ ] T066 Assess whether the non-bootstrap `#qrscan-fallback` branch in `showModal()` is still required before any deletion: FR-6 explicitly mandates inline-text fallback when `bootstrap.Modal` is unavailable — record field evidence or spec amendment first, do not delete on style grounds per FR-6/FR-7 (unrequested)
+- [ ] T067 Assess whether `text_success_class`/`text_warning_class` params can be hardcoded: FR-6 + plan §2 + `contracts/module-params.md` declare five genuine params incl. both text classes — removal needs a spec/contract amendment, do not hardcode unilaterally per FR-6 (unrequested)
+- [ ] T068 Assess whether `QRSCAN_DEBUG`/`qrscanLog`/`verbose:true` scaffolding can go: T055/U1 kept it until the ProcessingLock/no-camera field issue is resolved — confirm the iOS-Safari "No camera available" diagnostics are no longer needed before deleting per FR-8 (unrequested)
+- [ ] T069 Assess whether `refreshCameraLabels()` 2nd `getCameras()` + back-camera re-adopt can be folded into `loadCameraPreferences()`: FR-2 requires `facingMode exact environment` → label-match → first with `localStorage` persistence, and iOS Safari returns empty labels pre-permission — need field evidence per T060 pattern before deduping per FR-2 (unrequested)
+- [ ] T070 Assess whether the permission-vs-busy error taxonomy (`domErrorName`/`isPermissionError`/`isCameraBusyError`) can be merged: SC-5/FR-7 require distinct no-camera vs camera-in-use messages and iOS Safari surfaces permission/busy differently — verify message mapping on-device before shrinking per SC-5 (unrequested)
+- [ ] T071 Assess whether the EB-bootstrap guards (`file_exists` + try/catch + `class_exists`/`method_exists` + empty-key) can be collapsed: plan §3.2/T024 require each guarded layer with a human-readable stop — prove identical failure coverage before merging per plan §3.2 (unrequested)
+- [ ] T072 Assess whether `build.py` `downloadurl` double-stamp can be deduplicated and `md5` dropped: plan §3.5 step 7 + T013 define `sha256` authoritative with `md5` informational, constitution II mandates green update-XML gates — verify updater flow before touching per Constitution II (unrequested)
+
+## Phase 15: Convergence (T066 refresh after 2026-10-05 FR-6 amendment)
+
+> Spec now mandates modal-only FR-6 (Joomla 5 always ships Bootstrap 5; inline-text fallback retired). T066 assess-only is superseded by the executable tasks below. Scope warning: only the result-surface fallback goes — camera `fallbackConfig`, audio silent fallback, `pause()` flag-only fallback, and en-GB language fallback are separate requirements and stay.
+
+- [X] T073 Remove the non-bootstrap `#qrscan-fallback` else-branch from `showModal()` in `js/site-checkin-default.js` (assume `bootstrap.Modal`), drop `hideInlineFallback()` and its `startScanner()` call site only if left without purpose, and trim the `bootstrap.Modal` presence probe from the init log line per FR-6 (Session 2026-10-05) (contradicts)
+- [X] T074 Align plan §3.1 modal paragraph with amended FR-6: delete the "if `bootstrap.Modal` is unavailable, render result text in an inline div" fallback sentence so plan no longer contradicts spec per FR-6 (Session 2026-10-05) (contradicts)

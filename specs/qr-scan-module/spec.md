@@ -26,7 +26,6 @@ This feature provides a web-based QR scan module for event volunteers to check t
 - **Camera in use**: User should be informed the camera is in use by another application
 - **Network error**: Clear indication of connection problem
 - **Invalid QR code**: Display error message
-- **Pop-up display failure**: Clear error message
 - **Missing translation key**: English (en-GB) fallback text is shown, never a raw key or blank (per FR-16)
 - **`%s` placeholders** (e.g. the EB-absent error code): preserved verbatim in every translation, substituted at display time
 - **Third language** (e.g. French): English module text is shown via fallback; adding that language is a future feature
@@ -44,10 +43,10 @@ This feature provides a web-based QR scan module for event volunteers to check t
 3. **FR-3 Start/Stop Control**: Custom Start/Stop button starts/stops `Html5Qrcode` decoder (no `Html5QrcodeScanner` widget UI).
 4. **FR-4 QR Recognition**: QR-only decode via the `Html5Qrcode` constructor option `{ formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }` (constructor only — never a `start()` option); decode attempts at administrator-configurable `fps` (new `scan_fps` module param, manifest number field min 1 max 10, default 2, allowed range 1–10; out-of-range values fall back to default 2; spec default changed 1→2 per 2026-09-20 clarification to match current code), `qrbox` 250×250, `disableFlip: true` (start config).
 5. **FR-5 Ticket Code Transmission**: Send `GET {checkinUrl}&value={encodeURIComponent(ticket)}&t={Date.now()}` to Check-in Module; secure transmission delegated to site HTTPS + logged-in user (no extra module crypto).
-6. **FR-6 Response Display**: Single Bootstrap 5 modal (`qrscanModal`) shows text-escaped `message`; Close via `data-bs-dismiss`. If `bootstrap.Modal` is unavailable, render the message as inline text instead (FR-7 error path; modal and inline fallback are never shown simultaneously). Body styling uses module params `text_success_class` (default `text-success`) and `text_warning_class` (default `text-danger`); no external CSS file (JS-set inline styles and embedded `<style>` in the template are allowed). The result pop-up must be fully visible without scrolling: its top must not render above the first HTML element of the module output (currently the `#reader` video element).
-7. **FR-7 User Feedback**: All failures show human-readable modal/inline text (no `alert()`). Acceptance criteria: each negative case (no camera, camera in use, offline, invalid QR, EB absent, unknown) yields modal/inline text with the correct EB sound where applicable. Invalid ticket codes are detected by the check-in module, which returns its own message in the JSON response (no `bad_key` case in this module).
+6. **FR-6 Response Display**: Single Bootstrap 5 modal (`qrscanModal`) shows text-escaped `message`; Close via `data-bs-dismiss`. Joomla 5 always ships Bootstrap 5, so the modal is the only result surface — no inline-text fallback exists. Body styling uses module params `text_success_class` (default `text-success`) and `text_warning_class` (default `text-danger`); no external CSS file (JS-set inline styles and embedded `<style>` in the template are allowed). The result pop-up must be fully visible without scrolling: its top must not render above the first HTML element of the module output (currently the `#reader` video element).
+7. **FR-7 User Feedback**: All failures show human-readable modal text (no `alert()`). Acceptance criteria: each negative case (no camera, camera in use, offline, invalid QR, EB absent, unknown) yields modal text with the correct EB sound where applicable. Invalid ticket codes are detected by the check-in module, which returns its own message in the JSON response (no `bad_key` case in this module).
 8. **FR-8 Non-Scanning During Processing**: No check-in request while `isProcessing===true` (software flag + guarded `pause(true)`/`resume()`); verified by single request in devtools Network.
-9. **FR-9 Ticket Code Pre-validation**: Before any network call, reject `decodedText` that is empty, non-alphanumeric, or longer than `ticket_max_length` (default 32); show human-readable modal/inline error and send no request. Undecodable frames (`onScanFailure`) stay silent no-ops.
+9. **FR-9 Ticket Code Pre-validation**: Before any network call, reject `decodedText` that is empty, non-alphanumeric, or longer than `ticket_max_length` (default 32); show human-readable modal error and send no request. Undecodable frames (`onScanFailure`) stay silent no-ops.
 10. **FR-10 Audio Feedback**: On each resolved result, play EB `success.mp3` iff `success:true`, else `fail.mp3` — including client-validation and network failures. Guard `Audio` playback errors with silent fallback; result display (FR-6/FR-7) always takes precedence. No audio assets are bundled in the ZIP (EB-sourced, see R7).
 11. **FR-11 Rescan Dedup + Background Suspend**: After modal dismiss, suppress resend of the same ticket code while `now - sessionStorage[value] < checkInInterval` (default 2000 ms); a different code always sends immediately. On `document.visibilitychange`, pause when hidden and resume when visible (guarded by `getState()`, same pattern as FR-8).
 12. **FR-12 Language-system sourcing**: Every user-visible string MUST resolve through Joomla's language system — either built-in Joomla text or a module language key — with zero hardcoded display literals in the module code.
@@ -140,6 +139,10 @@ This feature provides a web-based QR scan module for event volunteers to check t
 
 - Q: What does FR-6 'no module CSS' mean? → A: No external CSS file; JS-set inline styles are allowed.
 - Q: Does the rule also forbid an embedded `<style>` block in the template? → A: B — No, embedded `<style>` in `tmpl/default.php` is allowed; only separate `.css` files are banned.
+
+### Session 2026-10-05
+
+- Q: Should the inline-text fallback for unavailable `bootstrap.Modal` be removed from the spec, making the single Bootstrap 5 modal the only result surface? → A: A — Remove fallback: Joomla 5 always ships Bootstrap 5, so FR-6/FR-7/FR-9 drop the `modal/inline` wording and the pop-up-display-failure edge case is retired.
 
 ## Notes
 

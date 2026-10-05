@@ -50,8 +50,8 @@ result popup. This plan documents the Technical Stack and the design artifacts.
   device (wrap-around).
 - Modal: Bootstrap 5 via Joomla core (`HTMLHelper::_('bootstrap.modal')` /
   `Bootstrap::renderModal` in `tmpl/default.php`, `new bootstrap.Modal(...)` /
-   `.show()` in JS). Fallback: if `bootstrap.Modal` is unavailable, render result
-   text in an inline div instead (FR-7 error path; single visible surface at a time).
+   `.show()` in JS). Joomla 5 always ships Bootstrap 5, so the modal is the
+   only result surface (no inline-text fallback, per amended FR-6).
 - Joomla Core JS: `Joomla.request`, `Joomla.getOptions`.
 - Dedup: `sessionStorage[decodedText] = timestamp`; skip rescan if
   `now - stored < checkInInterval` (default 2000 ms — the old 15 s only

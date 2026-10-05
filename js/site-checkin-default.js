@@ -45,56 +45,28 @@
 		}
 	}
 
-	function hideInlineFallback() {
-		var fallback = document.getElementById('qrscan-fallback');
-		if (fallback) {
-			fallback.style.display = 'none';
-		}
-		var reader = document.getElementById('reader');
-		if (reader) {
-			reader.style.display = '';
-		}
-	}
-
 	function showModal(message, type) {
 		qrscanLog('showModal', 'type=' + type);
-		hideInlineFallback();
 		const modalBody = document.querySelector('.modal-body');
 		if (!modalBody) return;
 		modalBody.textContent = message;
 		modalBody.className = 'modal-body ' + (type === 'success' ? textSuccessClass : textWarningClass);
 		const modalElement = document.getElementById('qrscanModal');
-		if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-			if (!modalInstance) {
-				modalInstance = new bootstrap.Modal(modalElement);
-			}
-			try {
-				var reader = document.getElementById('reader');
-				var dialog = modalElement.querySelector('.modal-dialog');
-				if (reader && dialog) {
-					var top = reader.getBoundingClientRect().top;
-					dialog.style.marginTop = Math.max(0, Math.round(top)) + 'px';
-				}
-			} catch (e) {
-				/* ignore — modal shows at default position */
-			}
-			modalInstance.show();
-		} else {
-			var reader = document.getElementById('reader');
-			if (reader) {
-				reader.style.display = 'none';
-				var fallback = document.getElementById('qrscan-fallback');
-				if (!fallback) {
-					fallback = document.createElement('div');
-					fallback.id = 'qrscan-fallback';
-					reader.parentNode.insertBefore(fallback, reader.nextSibling);
-				}
-				fallback.className = type === 'success' ? textSuccessClass : textWarningClass;
-				fallback.textContent = message;
-				fallback.style.display = '';
-				isProcessing = false;
-			}
+		if (!modalElement) return;
+		if (!modalInstance) {
+			modalInstance = new bootstrap.Modal(modalElement);
 		}
+		try {
+			var reader = document.getElementById('reader');
+			var dialog = modalElement.querySelector('.modal-dialog');
+			if (reader && dialog) {
+				var top = reader.getBoundingClientRect().top;
+				dialog.style.marginTop = Math.max(0, Math.round(top)) + 'px';
+			}
+		} catch (e) {
+			/* ignore — modal shows at default position */
+		}
+		modalInstance.show();
 	}
 
 	function playSound(success) {
@@ -164,7 +136,6 @@
 	function startScanner(deviceId) {
 		if (!scanner) return;
 		userStopped = false;
-		hideInlineFallback();
 		setStartButtonLabel(stopLabel);
 		var efficiencyConfig = { fps: scanFps, qrbox: { width: 250, height: 250 }, disableFlip: true };
 		var fallbackConfig = { facingMode: { exact: 'environment' } };
@@ -471,7 +442,7 @@
 			ctorConfig.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
 		}
 		scanner = new Html5Qrcode('reader', ctorConfig);
-		qrscanLog('init', 'checkinUrl=' + (!!checkinUrl), 'bootstrap.Modal=' + (!!(typeof bootstrap !== 'undefined' && bootstrap && bootstrap.Modal)), 'Html5QrcodeScannerState=' + (typeof Html5QrcodeScannerState !== 'undefined'));
+		qrscanLog('init', 'checkinUrl=' + (!!checkinUrl), 'Html5QrcodeScannerState=' + (typeof Html5QrcodeScannerState !== 'undefined'));
 
 		document.getElementById('start-stop-btn').addEventListener('click', function () {
 			if (!scanner) return;
