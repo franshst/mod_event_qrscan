@@ -142,7 +142,10 @@ i18n additions (merged from `001-dutch`, FR-12…FR-16): `language/nl-NL/nl-NL.m
 7. Version consistency: CLI arg (semver `X.Y.Z`) == manifest `<version>` ==
    update XML version.
 8. CI (`build.yml`): run `python build.py <semver>` on push with identical
-   gates; red build blocks release.
+   gates; red build blocks release. Manual release from GitHub via
+   `workflow_dispatch` (`part` = major/minor/patch): bumps the latest release
+   tag, builds, and `gh release create`s the ZIP + update XML (same flow as
+   `deploy.sh`).
 
 ## 4. Constitution Check
 

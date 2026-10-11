@@ -147,6 +147,10 @@ NOTE: there is no T6 — the ID was never assigned (Phase 2 jumps T5 → T7a); I
 - [X] T071 RESOLVED RETAIN (2026-10-11): guards kept per R19 — the EB `require_once` is the documented primary integration (not a legacy fallback) and each layer maps to a spec-mandated failure mode; collapsing needs a plan §3.2 amendment and saves ≈8 lines.
 - [X] T072 RESOLVED EXECUTED (2026-10-11): `md5` compute+print removed; steps 6+7 merged into single-pass `step6_update_xml(version, zip_path)` (one parse, one `downloadurl` stamp, one write); contracts/plan/quickstart aligned; `build.py 1.1.5` green with identical update-XML output.
 
+## Phase 17 — GitHub release workflow (2026-10-11)
+
+- [X] T080 Add `workflow_dispatch` `release` job to `.github/workflows/build.yml` (`part` choice input, default patch): full history checkout, bump latest release tag, `build.py`, commit-subject notes, `gh release create` with ZIP + update XML — mirrors `deploy.sh`; align README CI section + plan §3.5 CI step
+
 ## Phase 15: Convergence (T066 refresh after 2026-10-05 FR-6 amendment)
 
 > Spec now mandates modal-only FR-6 (Joomla 5 always ships Bootstrap 5; inline-text fallback retired). T066 assess-only is superseded by the executable tasks below. Scope warning: only the result-surface fallback goes — camera `fallbackConfig`, audio silent fallback, `pause()` flag-only fallback, and en-GB language fallback are separate requirements and stay.

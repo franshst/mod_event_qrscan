@@ -104,6 +104,6 @@ The Joomla Update System is configured via `event_qrscan_update.xml`. When a new
 
 3. **Verify** — confirm the release page shows both `mod_event_qrscan_<version>.zip` and `event_qrscan_update.xml`, and that the SHA256 checksum in the update XML matches the uploaded ZIP.
 
-### CI
+### CI / GitHub release
 
-A GitHub Actions workflow (`.github/workflows/build.yml`) runs `python build.py 1.0.0` on every push to `main`. To customize the version, edit the workflow file or run the build locally and push the artifacts.
+A GitHub Actions workflow (`.github/workflows/build.yml`) runs `python build.py 1.0.0` as a smoke gate on every push to `main`. To publish a release from GitHub instead of running `deploy.sh` locally: go to **Actions → Build → Run workflow**, pick the version part (`patch`/`minor`/`major`) — the workflow bumps the latest release tag, builds, and creates the GitHub release with `mod_event_qrscan_<version>.zip` and `event_qrscan_update.xml`.
