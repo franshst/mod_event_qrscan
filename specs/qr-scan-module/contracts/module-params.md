@@ -12,12 +12,12 @@ full URL via `Route::_()`. A missing api key is an error condition.
 |---|---|---|---|
 | `checkin_interval` | no | `2000` | Dedup TTL ms (`sessionStorage`). 2 s suffices now that the FR8 lock prevents scan-during-processing (old 15 s only masked double check-ins). Keep short: group tickets require rescan of the same QR (once per attendant) shortly after dismiss. |
 | `ticket_max_length` | no | `32` | Max ticket code chars (alphanumeric pre-validation). |
-| `text_success_class` | no | `text-success` | Bootstrap 5 text utility class for success body (no module CSS). |
-| `text_warning_class` | no | `text-danger` | Bootstrap 5 text utility class for warning/error body (no module CSS). |
 | `scan_fps` | no | `2` | Scan attempts per second (`fps` in `start()` efficiency config). Number 1–10; out-of-range falls back to 2. |
 
+Result-modal body styling is fixed, not a param: `text-success` on success, `text-danger` on warning/error (FR-6, Session 2026-10-11 — `text_success_class`/`text_warning_class` params removed).
+
 JS option keys: `checkinUrl`, `checkInInterval`, `ticketMaxLength`,
-`successAudioUrl`, `failAudioUrl`, `textSuccessClass`, `textWarningClass`,
+`successAudioUrl`, `failAudioUrl`,
 `scanFps`
 (Check-in URL constructed server-side from EB `getConfig()`; sound URLs are EB shipped files referenced in place.)
 Plus the 6 i18n message keys wired via `addScriptOptions` (FR-14/R13, English values are `Joomla.getOptions` fallbacks only):

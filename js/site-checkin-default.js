@@ -6,8 +6,6 @@
 	const ticketMaxLength = Joomla.getOptions('ticketMaxLength', 32);
 	const successAudioUrl = Joomla.getOptions('successAudioUrl');
 	const failAudioUrl = Joomla.getOptions('failAudioUrl');
-	const textSuccessClass = Joomla.getOptions('textSuccessClass');
-	const textWarningClass = Joomla.getOptions('textWarningClass');
 	const scanFps = (function () {
 		var fps = parseInt(Joomla.getOptions('scanFps', 2), 10);
 		if (isNaN(fps) || fps < 1 || fps > 10) return 2;
@@ -38,7 +36,7 @@
 		const modalBody = document.querySelector('.modal-body');
 		if (!modalBody) return;
 		modalBody.textContent = message;
-		modalBody.className = 'modal-body ' + (type === 'success' ? textSuccessClass : textWarningClass);
+		modalBody.className = 'modal-body ' + (type === 'success' ? 'text-success' : 'text-danger');
 		const modalElement = document.getElementById('qrscanModal');
 		if (!modalElement) return;
 		if (!modalInstance) {

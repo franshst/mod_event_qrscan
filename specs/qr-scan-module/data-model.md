@@ -44,7 +44,9 @@ Note: `ResultModal` is the same entity as the `Pop-up` defined in spec.md — a 
 
 - Fields: `state: idle | success | warning | error`, `bodyText: string`
 - Rules: one modal only; Close via `data-bs-dismiss`; `error` state for
-  network/no-camera/invalid-QR/missing-config.
+  network/no-camera/invalid-QR/missing-config. Body styling is fixed:
+  `text-success` on success, `text-danger` otherwise (not configurable, no
+  module params — FR-6 Session 2026-10-11).
 - Audio rule: `success` → EB success sound; any other outcome
   (`warning`/`error`, incl. validation and network failures) → EB fail sound
   (both hardcoded server-side to EB shipped files
@@ -86,12 +88,12 @@ A single translatable display text, identified by key.
 
 - Fields:
   - `tag` (enum: `en-GB`, `nl-NL`), `scope` (site ini | sys ini), `path` (`language/<tag>/<tag>.mod_event_qrscan[.sys].ini`).
-  - `keys`: full key set for site ini (19 keys); sys ini carries the description key.
+  - `keys`: full key set for site ini (17 keys); sys ini carries the description key.
 - State transitions: none (static shipped files). Lifecycle: added at build → installed via `<folder>language</folder>` → resolved at runtime by Joomla core, en-GB fallback when a key is absent.
 
-## Key inventory (language keys, 19 keys)
+## Key inventory (language keys, 17 keys)
 
-`MOD_EVENT_QRSCAN_AIM_INSTRUCTION`, `_START`, `_STOP`, `_SWITCH_CAMERA`, `_RESULT`, `_CLOSE`, `_ERROR_NO_CAMERA`, `_ERROR_CAMERA_BUSY`, `_ERROR_OFFLINE`, `_ERROR_INVALID_QR`, `_ERROR_EB_ABSENT`, `_ERROR_UNKNOWN`, `_ERROR_CHECKIN_CONFIG`, `_XML_DESCRIPTION`, `_CHECKIN_INTERVAL`, `_TICKET_MAX_LENGTH`, `_TEXT_SUCCESS_CLASS`, `_TEXT_WARNING_CLASS`, `_SCAN_FPS` (19 keys; sys ini: `_XML_DESCRIPTION`).
+`MOD_EVENT_QRSCAN_AIM_INSTRUCTION`, `_START`, `_STOP`, `_SWITCH_CAMERA`, `_RESULT`, `_CLOSE`, `_ERROR_NO_CAMERA`, `_ERROR_CAMERA_BUSY`, `_ERROR_OFFLINE`, `_ERROR_INVALID_QR`, `_ERROR_EB_ABSENT`, `_ERROR_UNKNOWN`, `_ERROR_CHECKIN_CONFIG`, `_XML_DESCRIPTION`, `_CHECKIN_INTERVAL`, `_TICKET_MAX_LENGTH`, `_SCAN_FPS` (17 keys; sys ini: `_XML_DESCRIPTION`).
 
 ## Relationships
 

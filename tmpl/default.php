@@ -5,8 +5,6 @@ HTMLHelper::_('bootstrap.modal', 'qrscanModal', array(
 	'backdrop' => 'static',
 	'keyboard' => true,
 ));
-$textSuccessClass = $params->get('text_success_class', 'text-success');
-$textWarningClass = $params->get('text_warning_class', 'text-danger');
 ?>
 <div id="reader"></div>
 <p id="aim-instruction"><?php echo JText::_('MOD_EVENT_QRSCAN_AIM_INSTRUCTION'); ?></p>
@@ -19,7 +17,7 @@ $textWarningClass = $params->get('text_warning_class', 'text-danger');
 				<h5 class="modal-title"><?php echo JText::_('MOD_EVENT_QRSCAN_RESULT'); ?></h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo JText::_('MOD_EVENT_QRSCAN_CLOSE'); ?>"></button>
 			</div>
-			<div class="modal-body <?php echo $textSuccessClass; ?>"></div>
+			<div class="modal-body text-success"></div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo JText::_('MOD_EVENT_QRSCAN_CLOSE'); ?></button>
 			</div>

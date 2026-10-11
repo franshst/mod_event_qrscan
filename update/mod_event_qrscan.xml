@@ -38,20 +38,6 @@
 					default="32"
 				/>
 				<field
-					name="text_success_class"
-					type="text"
-					label="MOD_EVENT_QRSCAN_TEXT_SUCCESS_CLASS"
-					description="class of displayed text when scan is success"
-					default="text-success"
-				/>
-				<field
-					name="text_warning_class"
-					type="text"
-					label="MOD_EVENT_QRSCAN_TEXT_WARNING_CLASS"
-					description="class of displayed text when scan is a failure"
-					default="text-danger"
-				/>
-				<field
 					name="scan_fps"
 					type="number"
 					label="MOD_EVENT_QRSCAN_SCAN_FPS"

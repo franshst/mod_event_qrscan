@@ -14,11 +14,11 @@ result popup. This plan documents the Technical Stack and the design artifacts.
 - `Joomla.getOptions('checkinUrl')` from Events Booking scope is NOT reliable on
   its own; the module bootstraps EB server-side and reads
   `getConfig()->checkin_api_key`, constructing the full URL itself (see R7).
-   No URL/key/sound module params — five genuine module params only
-   (`checkin_interval`, `ticket_max_length`, `scan_fps` (default 2, range 1–10),
-   two Bootstrap 5 text-utility classes
-   (`text_success_class` default `text-success`, `text_warning_class` default
-   `text-danger`, no module CSS); single `tmpl/default.php` layout, no `layout` param).
+   No URL/key/sound module params — three genuine module params only
+   (`checkin_interval`, `ticket_max_length`, `scan_fps` (default 2, range 1–10));
+   result-modal body styling is fixed (`text-success`/`text-danger`, no module
+   CSS, no text-class params per FR-6 Session 2026-10-11); single
+   `tmpl/default.php` layout, no `layout` param).
 - Testing: manual Joomla install + sample QR scan; automate everything else
   (lint, ZIP completeness, hashes).
 
@@ -124,7 +124,7 @@ LICENSE, README.md
 
 Manifest convention: source = `update/mod_event_qrscan.xml`, built = root `mod_event_qrscan.xml`; update template = `update/event_qrscan_update.xml` → built root `event_qrscan_update.xml`. See `contracts/build.md`.
 FR8 lock + dedup authoritative definition: `data-model.md` (`ProcessingLock`, `ScanDedup`); this plan summarizes only.
-i18n additions (merged from `001-dutch`, FR-12…FR-16): `language/nl-NL/nl-NL.mod_event_qrscan.ini` (20 keys) + `nl-NL.mod_event_qrscan.sys.ini` + `index.html`; JS messages via `addScriptOptions`/`Joomla.getOptions` (R13); no manifest change (`<folder>language</folder>` covers nl-NL); en-GB fallback for missing keys.
+i18n additions (merged from `001-dutch`, FR-12…FR-16): `language/nl-NL/nl-NL.mod_event_qrscan.ini` (17 keys) + `nl-NL.mod_event_qrscan.sys.ini` + `index.html`; JS messages via `addScriptOptions`/`Joomla.getOptions` (R13); no manifest change (`<folder>language</folder>` covers nl-NL); en-GB fallback for missing keys.
 
 ### 3.5 Build (`build.py <semver>`, port of Event-summary `build.py`)
 1. `minify_js()`: delete stale `*.min.js` EXCLUDING `js/html5-qrcode.min.js`, `uglifyjs js/site-checkin-default.js -o js/site-checkin-default.min.js`. The vendored `js/html5-qrcode.min.js` is never touched — it is cloned pre-minified and included as-is.
@@ -179,6 +179,6 @@ Dutch translations accepted as-is; native-speaker review out of scope.
 
 ## 9. Dutch translation support (merged from `001-dutch-translation-support`)
 
-Every user-visible string resolves through Joomla's language system (built-in text or module ini keys); complete nl-NL translation ships with the module (20 keys, `%s` preserved). Approach: keep the existing `JText`/`addScriptOptions` pattern — pass the hardcoded JavaScript messages as script options from `mod_event_qrscan.php`, add `language/nl-NL/` ini + sys.ini mirroring en-GB, rely on Joomla's automatic en-GB fallback. No manifest change, no new dependencies.
+Every user-visible string resolves through Joomla's language system (built-in text or module ini keys); complete nl-NL translation ships with the module (17 keys, `%s` preserved). Approach: keep the existing `JText`/`addScriptOptions` pattern — pass the hardcoded JavaScript messages as script options from `mod_event_qrscan.php`, add `language/nl-NL/` ini + sys.ini mirroring en-GB, rely on Joomla's automatic en-GB fallback. No manifest change, no new dependencies.
 Minification reaffirmed (C1): `uglifyjs` runs inside `build.py`; `tasks.md` T021 is superseded.
 Future improvement (noted): manual `build.py` + hand-installed ZIP + manual language passes as user-testing method is unsatisfactory — consider automated install/smoke checks.

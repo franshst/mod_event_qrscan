@@ -42,8 +42,6 @@ $doc = JFactory::getDocument();
 
 $checkInInterval = (int) $params->get('checkin_interval', 2000);
 $ticketMaxLength = (int) $params->get('ticket_max_length', 32);
-$textSuccessClass = $params->get('text_success_class', 'text-success');
-$textWarningClass = $params->get('text_warning_class', 'text-danger');
 $scanFps = (int) $params->get('scan_fps', 2);
 if ($scanFps < 1 || $scanFps > 10) {
 	$scanFps = 2;
@@ -54,8 +52,6 @@ $doc->addScriptOptions('checkInInterval', $checkInInterval);
 $doc->addScriptOptions('ticketMaxLength', $ticketMaxLength);
 $doc->addScriptOptions('successAudioUrl', 'media/com_eventbooking/audios/success.mp3');
 $doc->addScriptOptions('failAudioUrl', 'media/com_eventbooking/audios/fail.mp3');
-$doc->addScriptOptions('textSuccessClass', $textSuccessClass);
-$doc->addScriptOptions('textWarningClass', $textWarningClass);
 $doc->addScriptOptions('scanFps', $scanFps);
 $doc->addScriptOptions('MOD_EVENT_QRSCAN_START', JText::_('MOD_EVENT_QRSCAN_START'));
 $doc->addScriptOptions('MOD_EVENT_QRSCAN_STOP', JText::_('MOD_EVENT_QRSCAN_STOP'));

@@ -48,9 +48,9 @@ All error messages are displayed in the modal or inline fallback — never via `
 |---|---|---|
 | **Check-in Interval** | `2000` | Minimum time in milliseconds between successive check-in requests for the same ticket code. Prevents duplicate submissions. Default is 2000 ms (2 seconds). |
 | **Ticket Max Length** | `32` | Maximum allowed length of the ticket code (alphanumeric only). QR codes exceeding this length are rejected client-side before any network request is made. |
-| **Success Text Class** | `text-success` | Bootstrap 5 text utility class applied to the modal body when the check-in succeeds. Common values: `text-success` (green), `text-primary` (blue). |
-| **Warning Text Class** | `text-danger` | Bootstrap 5 text utility class applied to the modal body when the check-in fails or an error occurs. Common values: `text-danger` (red), `text-warning` (yellow). |
 | **Scan FPS** | `2` | Scan attempts per second. Number 1–10; out-of-range values fall back to 2. |
+
+Result-modal styling is fixed: `text-success` on success, `text-danger` on failure (not configurable).
 
 ### Endpoints and sounds
 
