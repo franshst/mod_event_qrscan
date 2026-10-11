@@ -15,17 +15,6 @@
 	})();
 	const storage = window.sessionStorage;
 
-	/* TEMPORARY-DEBUG: console diagnostics for the "No camera available" issue. Set to false to silence. */
-	var QRSCAN_DEBUG = false;
-	function qrscanLog() {
-		if (!QRSCAN_DEBUG) return;
-		try {
-			var args = Array.prototype.slice.call(arguments);
-			args.unshift('[qrscan]');
-			window.console.log.apply(window.console, args);
-		} catch (e) { /* ignore */ }
-	}
-
 	let scanner = null;
 	let isProcessing = false;
 	let userStopped = false;
@@ -46,7 +35,6 @@
 	}
 
 	function showModal(message, type) {
-		qrscanLog('showModal', 'type=' + type);
 		const modalBody = document.querySelector('.modal-body');
 		if (!modalBody) return;
 		modalBody.textContent = message;
@@ -142,10 +130,8 @@
 		var preferredId = deviceId || getCurrentDeviceId();
 		var primaryConfig = preferredId ? { deviceId: { exact: preferredId } } : fallbackConfig;
 		var triedFallback = !preferredId;
-		qrscanLog('startScanner', 'primary=' + JSON.stringify(primaryConfig), 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
 		function showNoCamera(error) {
 			var busy = isCameraBusyError(error) || isCameraBusyError(lastCameraQueryError);
-			qrscanLog('startScanner', 'start failed', 'busy=' + busy);
 			setStartButtonLabel(startLabel);
 			if (busy) {
 				showModal(EventQrscanHelper.getErrorMessage('camera_busy'), 'warning');
@@ -155,16 +141,12 @@
 			playSound(false);
 		}
 		function onStarted(config) {
-			qrscanLog('startScanner', 'attempt ok', 'config=' + JSON.stringify(config));
 			refreshCameraLabels();
 		}
 		function tryStart(config, isFallback) {
 			scanner.start(config, efficiencyConfig, onScanSuccess, onScanFailure).then(function () {
 				onStarted(config);
 			}).catch(function (error) {
-				var errName = error ? error.name : String(error);
-				var errMsg = error ? error.message : String(error);
-				qrscanLog('startScanner', 'attempt failed', 'config=' + JSON.stringify(config), 'name=' + errName, 'message=' + errMsg);
 				if (isPermissionError(error) || isFallback) {
 					showNoCamera(error);
 					return;
@@ -176,7 +158,6 @@
 	}
 
 	function stopScanner() {
-		qrscanLog('stopScanner', 'called');
 		userStopped = true;
 		setStartButtonLabel(startLabel);
 		if (!scanner) return;
@@ -202,7 +183,6 @@
 				scanner.pause(true);
 			}
 		} catch (e) {
-			qrscanLog('lockScanner', 'pause failed, flag-only fallback');
 			/* ignore — isProcessing flag remains the request guard */
 		}
 	}
@@ -236,11 +216,9 @@
 			try {
 				scanner.resume();
 			} catch (e) {
-				qrscanLog('unlockScanner', 'resume failed, attempting restart');
 				restartScanner();
 			}
 		} else if (state !== Html5QrcodeScannerState.SCANNING) {
-			qrscanLog('unlockScanner', 'not paused, attempting restart');
 			restartScanner();
 		}
 		/* state SCANNING (pause never engaged — flag-only mode): nothing to do */
@@ -278,7 +256,6 @@
 		return Html5Qrcode.getCameras().then(function (foundCameras) {
 			cameras = foundCameras;
 			lastCameraQueryError = null;
-			qrscanLog('loadCameraPreferences', 'found=' + cameras.length, 'labels=' + JSON.stringify(cameras.map(function (c) { return c.label || ''; })));
 			if (savedDeviceId) {
 				var matched = cameras.find(function (c) { return getCameraDeviceId(c) === savedDeviceId; });
 				if (matched) {
@@ -301,7 +278,6 @@
 		}
 		return null;
 		}).catch(function (err) {
-			qrscanLog('loadCameraPreferences', 'failed', 'reason=' + String((err && err.message) || err || ''));
 			lastCameraQueryError = err;
 			cameras = [];
 			return null;
@@ -321,7 +297,6 @@
 			if (!foundCameras || foundCameras.length === 0) return;
 			var currentId = getCurrentDeviceId();
 			cameras = foundCameras;
-			qrscanLog('refreshCameraLabels', 'found=' + cameras.length, 'labels=' + JSON.stringify(cameras.map(function (c) { return c.label || ''; })));
 			if (currentId) {
 				var kept = cameras.find(function (c) { return getCameraDeviceId(c) === currentId; });
 				if (kept) {
@@ -338,7 +313,6 @@
 					}
 				}
 				if (backIdx >= 0 && backIdx !== currentCameraIndex && !(current && isBackCamera(current))) {
-					qrscanLog('refreshCameraLabels', 'adopting back camera at index ' + backIdx);
 					currentCameraIndex = backIdx;
 					persistCameraId(getCameraDeviceId(cameras[backIdx]));
 					if (!isProcessing && !document.hidden && scanner) {
@@ -359,7 +333,6 @@
 
 	function onScanSuccess(decodedText, decodedResult) {
 		if (isProcessing) return;
-		qrscanLog('onScanSuccess', 'len=' + (decodedText || '').length);
 		if (!EventQrscanHelper.validateTicketCode(decodedText, ticketMaxLength)) {
 			isProcessing = true;
 			lockScanner();
@@ -437,19 +410,17 @@
 		if (typeof configureZxingWasm !== 'undefined' && typeof ZxingWasmLoadMode !== 'undefined') {
 			configureZxingWasm({ loadMode: ZxingWasmLoadMode.SAME_DIRECTORY });
 		}
-		var ctorConfig = { verbose: true }; /* TEMPORARY-DEBUG: lib internals to console */
+		var ctorConfig = {};
 		if (typeof Html5QrcodeSupportedFormats !== 'undefined' && Html5QrcodeSupportedFormats.QR_CODE !== undefined) {
 			ctorConfig.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
 		}
 		scanner = new Html5Qrcode('reader', ctorConfig);
-		qrscanLog('init', 'checkinUrl=' + (!!checkinUrl), 'Html5QrcodeScannerState=' + (typeof Html5QrcodeScannerState !== 'undefined'));
 
 		document.getElementById('start-stop-btn').addEventListener('click', function () {
 			if (!scanner) return;
 			try {
 				if (typeof scanner.getState === 'function') {
 					var state = scanner.getState();
-					qrscanLog('start-stop click', 'state=' + state, 'cameras=' + cameras.length, 'index=' + currentCameraIndex);
 					if (state === Html5QrcodeScannerState.SCANNING) {
 						stopScanner();
 					} else {
@@ -472,10 +443,8 @@
 		var modalElement = document.getElementById('qrscanModal');
 		if (modalElement) {
 			modalElement.addEventListener('hidden.bs.modal', function () {
-				qrscanLog('modal hidden', 'isProcessing=' + isProcessing);
 				if (!isProcessing) return;
 				isProcessing = false;
-				qrscanLog('modal hidden', 'restarting scanner');
 				unlockScanner();
 			});
 		}

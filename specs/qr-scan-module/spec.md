@@ -34,7 +34,7 @@ This feature provides a web-based QR scan module for event volunteers to check t
 ## Glossary (canonical terms)
 
 - **EB** = Events Booking (`com_eventbooking`). **Check-in Module** = EB `scan.qr_code_checkin` endpoint: accepts ticket codes from this module, forwards to the Reservation Module, and returns the result; this module displays the returned message. **Reservation Module** = EB backend that validates the ticket and performs the check-in, returning either success or an error message to the Check-in Module.
-- JS option keys (canonical): `checkinUrl`, `checkInInterval`, `ticketMaxLength`, `successAudioUrl`, `failAudioUrl`, `textSuccessClass`, `textWarningClass`, plus the 6 i18n message keys (`MOD_EVENT_QRSCAN_ERROR_NO_CAMERA`, `_CAMERA_BUSY`, `_OFFLINE`, `_INVALID_QR`, `_EB_ABSENT`, `_UNKNOWN`) — full list authoritative in `contracts/module-params.md`.
+- JS option keys (canonical): `checkinUrl`, `checkInInterval`, `ticketMaxLength`, `successAudioUrl`, `failAudioUrl`, plus the 6 i18n message keys (`MOD_EVENT_QRSCAN_ERROR_NO_CAMERA`, `_CAMERA_BUSY`, `_OFFLINE`, `_INVALID_QR`, `_EB_ABSENT`, `_UNKNOWN`) — full list authoritative in `contracts/module-params.md`.
 
 ## Functional Requirements (stable IDs for coverage mapping)
 
@@ -43,14 +43,14 @@ This feature provides a web-based QR scan module for event volunteers to check t
 3. **FR-3 Start/Stop Control**: Custom Start/Stop button starts/stops `Html5Qrcode` decoder (no `Html5QrcodeScanner` widget UI).
 4. **FR-4 QR Recognition**: QR-only decode via the `Html5Qrcode` constructor option `{ formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }` (constructor only — never a `start()` option); decode attempts at administrator-configurable `fps` (new `scan_fps` module param, manifest number field min 1 max 10, default 2, allowed range 1–10; out-of-range values fall back to default 2; spec default changed 1→2 per 2026-09-20 clarification to match current code), `qrbox` 250×250, `disableFlip: true` (start config).
 5. **FR-5 Ticket Code Transmission**: Send `GET {checkinUrl}&value={encodeURIComponent(ticket)}&t={Date.now()}` to Check-in Module; secure transmission delegated to site HTTPS + logged-in user (no extra module crypto).
-6. **FR-6 Response Display**: Single Bootstrap 5 modal (`qrscanModal`) shows text-escaped `message`; Close via `data-bs-dismiss`. Joomla 5 always ships Bootstrap 5, so the modal is the only result surface — no inline-text fallback exists. Body styling uses module params `text_success_class` (default `text-success`) and `text_warning_class` (default `text-danger`); no external CSS file (JS-set inline styles and embedded `<style>` in the template are allowed). The result pop-up must be fully visible without scrolling: its top must not render above the first HTML element of the module output (currently the `#reader` video element).
+6. **FR-6 Response Display**: Single Bootstrap 5 modal (`qrscanModal`) shows text-escaped `message`; Close via `data-bs-dismiss`. Joomla 5 always ships Bootstrap 5, so the modal is the only result surface — no inline-text fallback exists. Body styling uses fixed classes `text-success` (success) and `text-danger` (warning/error) — not configurable, no module params for these; no external CSS file (JS-set inline styles and embedded `<style>` in the template are allowed). The result pop-up must be fully visible without scrolling: its top must not render above the first HTML element of the module output (currently the `#reader` video element).
 7. **FR-7 User Feedback**: All failures show human-readable modal text (no `alert()`). Acceptance criteria: each negative case (no camera, camera in use, offline, invalid QR, EB absent, unknown) yields modal text with the correct EB sound where applicable. Invalid ticket codes are detected by the check-in module, which returns its own message in the JSON response (no `bad_key` case in this module).
 8. **FR-8 Non-Scanning During Processing**: No check-in request while `isProcessing===true` (software flag + guarded `pause(true)`/`resume()`); verified by single request in devtools Network.
 9. **FR-9 Ticket Code Pre-validation**: Before any network call, reject `decodedText` that is empty, non-alphanumeric, or longer than `ticket_max_length` (default 32); show human-readable modal error and send no request. Undecodable frames (`onScanFailure`) stay silent no-ops.
 10. **FR-10 Audio Feedback**: On each resolved result, play EB `success.mp3` iff `success:true`, else `fail.mp3` — including client-validation and network failures. Guard `Audio` playback errors with silent fallback; result display (FR-6/FR-7) always takes precedence. No audio assets are bundled in the ZIP (EB-sourced, see R7).
 11. **FR-11 Rescan Dedup + Background Suspend**: After modal dismiss, suppress resend of the same ticket code while `now - sessionStorage[value] < checkInInterval` (default 2000 ms); a different code always sends immediately. On `document.visibilitychange`, pause when hidden and resume when visible (guarded by `getState()`, same pattern as FR-8).
 12. **FR-12 Language-system sourcing**: Every user-visible string MUST resolve through Joomla's language system — either built-in Joomla text or a module language key — with zero hardcoded display literals in the module code.
-13. **FR-13 Dutch translation**: The module MUST ship a complete Dutch (nl-NL) translation covering the same key set as en-GB: aim instruction, Start, Stop, Switch camera, Scan Result title, Close, all six user-facing error messages (no camera, camera busy/in use, offline, invalid QR, EB absent with `%s`, unknown), the check-in-config notice, and backend labels (description, check-in interval, ticket max length, text classes — `layout` param removed per 2026-09-20 clarification, single `tmpl/default.php` only).
+13. **FR-13 Dutch translation**: The module MUST ship a complete Dutch (nl-NL) translation covering the same key set as en-GB: aim instruction, Start, Stop, Switch camera, Scan Result title, Close, all six user-facing error messages (no camera, camera busy/in use, offline, invalid QR, EB absent with `%s`, unknown), the check-in-config notice, and backend labels (description, check-in interval, ticket max length, scan FPS — `layout` param removed per 2026-09-20 clarification, single `tmpl/default.php` only).
 14. **FR-14 JS message resolution**: JavaScript-driven messages MUST resolve through the language system via `addScriptOptions` (PHP `JText::_()` resolution) + `Joomla.getOptions(key, englishFallback)`, so the Dutch translations apply to pop-ups shown from JavaScript. English literals in JS are fallbacks only.
 15. **FR-15 Language installation**: The installation package MUST install the nl-NL language files (site ini and sys ini) via the existing `<folder>language</folder>` manifest entry (no manifest change); `build.py` zips `language/` wholesale.
 16. **FR-16 English fallback**: When a key has no translation in the active site language, the module MUST show the English (en-GB) text (standard Joomla fallback), never a raw key or blank string.
@@ -79,7 +79,7 @@ This feature provides a web-based QR scan module for event volunteers to check t
 - **Pop-up** (= Bootstrap 5 `qrscanModal`): User interface displaying scan results
 - **ProcessingLock / ScanDedup**: FR-8/FR-11 guards defined authoritatively in `data-model.md` (no scanning while processing; rescan dedup window)
 - **Language String**: A named key (e.g. `MOD_EVENT_QRSCAN_START`) with an English source text and a Dutch translated text; `%s` placeholders preserved across languages
-- **Language File**: Per-language ini pair (`nl-NL.mod_event_qrscan.ini` for site strings, `nl-NL.mod_event_qrscan.sys.ini` for installation labels), mirroring the en-GB key set (19 keys)
+- **Language File**: Per-language ini pair (`nl-NL.mod_event_qrscan.ini` for site strings, `nl-NL.mod_event_qrscan.sys.ini` for installation labels), mirroring the en-GB key set (17 keys)
 
 ### Dutch translations (acceptance data for FR-13)
 
@@ -101,8 +101,7 @@ This feature provides a web-based QR scan module for event volunteers to check t
 | XML_DESCRIPTION | QR-scanmodule voor ticketcontrole bij evenementen |
 | CHECKIN_INTERVAL | Check-in-interval |
 | TICKET_MAX_LENGTH | Maximale ticketlengte |
-| TEXT_SUCCESS_CLASS | Tekstklasse voor succesmelding |
-| TEXT_WARNING_CLASS | Tekstklasse voor waarschuwingsmelding |
+| SCAN_FPS | Scan-FPS |
 | ~~LAYOUT~~ | ~~Lay-out~~ — key retired with `layout` param removal (2026-09-20) |
 
 ## Assumptions
@@ -140,9 +139,14 @@ This feature provides a web-based QR scan module for event volunteers to check t
 - Q: What does FR-6 'no module CSS' mean? → A: No external CSS file; JS-set inline styles are allowed.
 - Q: Does the rule also forbid an embedded `<style>` block in the template? → A: B — No, embedded `<style>` in `tmpl/default.php` is allowed; only separate `.css` files are banned.
 
+### Session 2026-10-11
+
+- Q: Should the pop-up text CSS class stay configurable via `text_success_class`/`text_warning_class` module params (T067 assessment)? → A: No — requirement dropped; styling is fixed (`text-success`/`text-danger`), params and language keys removed.
+
 ### Session 2026-10-05
 
 - Q: Should the inline-text fallback for unavailable `bootstrap.Modal` be removed from the spec, making the single Bootstrap 5 modal the only result surface? → A: A — Remove fallback: Joomla 5 always ships Bootstrap 5, so FR-6/FR-7/FR-9 drop the `modal/inline` wording and the pop-up-display-failure edge case is retired.
+- Q: Should all temporary debug scaffolding be removed from the scanner now that it is tested and working? → A: A — Remove all: the `QRSCAN_DEBUG` flag, `qrscanLog()` definition plus all call sites, and the `verbose:true` constructor flag go; the T055/U1 retention (keep scaffolding until the field issue is resolved) is retired, unblocking T068.
 
 ## Notes
 
