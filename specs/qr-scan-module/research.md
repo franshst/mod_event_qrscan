@@ -219,3 +219,9 @@ Format: Decision / Rationale / Alternatives.
 
 - Decision: Texts returned by the Events Booking check-in endpoint pass through untouched, per spec out-of-scope.
 - Rationale: Reservation-module wording is owned by EB, not this module; translating it here would fork wording and drift.
+
+## R18. Camera error taxonomy retained (T070 on-device evidence, 2026-10-11)
+
+- Decision: Keep `domErrorName`/`parseEmbeddedErrorName`/`isPermissionError`/`isCameraBusyError` in `js/site-checkin-default.js` as-is; do not merge. SC-5 requires distinct "no camera" vs "camera in use" messages, and the split has to live somewhere — merging would move branches, not remove them.
+- Rationale: On-device probe (`probe-camera-errors.html`, since removed) confirmed disjoint buckets — deny → `NotAllowedError` on Win Chrome/Firefox, Android Chrome/Firefox, iPad Safari (all PERMISSION-bucket); genuine native-app camera hold → `NotReadableError` "Starting videoinput failed" on Win Firefox (BUSY-bucket); no sample matched both patterns. Side findings: two tabs always share the camera (no busy error from tab-vs-tab on any platform; iPad Safari hands the stream to the newest tab), and pre-permission `enumerateDevices` returns a single unlabeled camera everywhere, so facing-direction probing must stay post-permission (see T069).
+- Alternatives: Single-regex merge — rejected (saves ~15 lines but risks mislabeling camera-in-use as no-camera against SC-5, with iOS-busy and nameless-error paths still unsampled).
