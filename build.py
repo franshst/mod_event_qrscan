@@ -154,7 +154,7 @@ def step5_completeness_assert(zip_path):
     print("  ZIP completeness: OK")
 
 
-def step6_update_xml(version):
+def step6_update_xml(version, zip_path):
     src = ROOT / 'update' / 'event_qrscan_update.xml'
     tree = ET.parse(src)
     root = tree.getroot()
@@ -181,32 +181,14 @@ def step6_update_xml(version):
             d.set('format', 'zip')
             if 'https' in d.attrib:
                 del d.attrib['https']
-    tree.write(str(ROOT / 'event_qrscan_update.xml'), encoding='utf-8', xml_declaration=True)
-    print(f"  Update XML: {version} -> {download_url}")
-
-
-def step7_checksums(zip_path, version):
     with open(zip_path, 'rb') as f:
         sha256 = hashlib.sha256(f.read()).hexdigest()
-    md5 = hashlib.md5(open(zip_path, 'rb').read()).hexdigest()
     print(f"  sha256: {sha256}")
-    print(f"  md5 (informational): {md5}")
-
-    update_xml = ET.parse(str(ROOT / 'event_qrscan_update.xml'))
-    root = update_xml.getroot()
     sha_elem = root.find('update/sha256')
     if sha_elem is not None:
         sha_elem.text = sha256
-    download_url = f'https://github.com/{REPO}/releases/download/{version}/mod_event_qrscan_{version}.zip'
-    d = root.find('update/downloadurl')
-    if d is not None:
-        d.text = download_url
-        d.set('type', 'full')
-        d.set('format', 'zip')
-        if 'https' in d.attrib:
-            del d.attrib['https']
-    update_xml.write(str(ROOT / 'event_qrscan_update.xml'), encoding='utf-8', xml_declaration=True)
-    print("  Checksums updated in update XML")
+    tree.write(str(ROOT / 'event_qrscan_update.xml'), encoding='utf-8', xml_declaration=True)
+    print(f"  Update XML: {version} -> {download_url}")
 
 
 def main():
@@ -232,11 +214,8 @@ def main():
     print("\nStep 5: ZIP completeness assert...")
     step5_completeness_assert(zip_path)
 
-    print("\nStep 6: Update XML...")
-    step6_update_xml(version)
-
-    print("\nStep 7: Checksums...")
-    step7_checksums(zip_path, version)
+    print("\nStep 6: Update XML + checksums...")
+    step6_update_xml(version, zip_path)
 
     print(f"\n=== BUILD SUCCESS: {zip_path} ===\n")
     print(f"  Outputs: {zip_path.name}, event_qrscan_update.xml")

@@ -137,12 +137,11 @@ i18n additions (merged from `001-dutch`, FR-12…FR-16): `language/nl-NL/nl-NL.m
    `LICENSE` + manifest + `*.php` → `shutil.make_archive`.
 5. ZIP completeness gate: assert required entries present, no temp dirs,
    no template leakage.
-6. `prepare_update_xml()`: `{VERSION}` substitution.
-7. `update_checksum()`: `sha256` of ZIP → `<update><sha256>` (authoritative for
-   Joomla updater). MD5 computed/printed informational only.
-8. Version consistency: CLI arg (semver `X.Y.Z`) == manifest `<version>` ==
+6. `prepare_update_xml()`: `{VERSION}` substitution + `downloadurl` stamp + `sha256` of ZIP → `<update><sha256>` (authoritative for
+   Joomla updater) in a single pass.
+7. Version consistency: CLI arg (semver `X.Y.Z`) == manifest `<version>` ==
    update XML version.
-9. CI (`build.yml`): run `python build.py <semver>` on push with identical
+8. CI (`build.yml`): run `python build.py <semver>` on push with identical
    gates; red build blocks release.
 
 ## 4. Constitution Check

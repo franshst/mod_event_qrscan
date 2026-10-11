@@ -145,7 +145,7 @@ NOTE: there is no T6 — the ID was never assigned (Phase 2 jumps T5 → T7a); I
 - [ ] T069 Assess whether `refreshCameraLabels()` 2nd `getCameras()` + back-camera re-adopt can be folded into `loadCameraPreferences()`: FR-2 requires `facingMode exact environment` → label-match → first with `localStorage` persistence, and iOS Safari returns empty labels pre-permission — need field evidence per T060 pattern before deduping per FR-2 (unrequested)
 - [X] T070 RESOLVED RETAIN (2026-10-11): taxonomy kept per R18 — deny → `NotAllowedError` (6 browser/OS combos) and native-hold → `NotReadableError` (Win Firefox) bucket disjointly; merging would move SC-5-mandated branches, not remove them.
 - [X] T071 RESOLVED RETAIN (2026-10-11): guards kept per R19 — the EB `require_once` is the documented primary integration (not a legacy fallback) and each layer maps to a spec-mandated failure mode; collapsing needs a plan §3.2 amendment and saves ≈8 lines.
-- [ ] T072 Assess whether `build.py` `downloadurl` double-stamp can be deduplicated and `md5` dropped: plan §3.5 step 7 + T013 define `sha256` authoritative with `md5` informational, constitution II mandates green update-XML gates — verify updater flow before touching per Constitution II (unrequested)
+- [X] T072 RESOLVED EXECUTED (2026-10-11): `md5` compute+print removed; steps 6+7 merged into single-pass `step6_update_xml(version, zip_path)` (one parse, one `downloadurl` stamp, one write); contracts/plan/quickstart aligned; `build.py 1.1.5` green with identical update-XML output.
 
 ## Phase 15: Convergence (T066 refresh after 2026-10-05 FR-6 amendment)
 

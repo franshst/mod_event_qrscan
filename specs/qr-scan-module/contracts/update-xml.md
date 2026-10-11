@@ -7,4 +7,3 @@ File: `event_qrscan_update.xml` (built from `update/event_qrscan_update.xml` tem
   `<infourl>`, `<downloads><downloadurl>` (points to `mod_event_qrscan.zip`),
   `<sha256>` (hex of ZIP, written by `build.py`).
 - Version consistency: update `<version>` == manifest `<version>` == CLI arg.
-- MD5: informational only (printed); not part of Joomla update contract.

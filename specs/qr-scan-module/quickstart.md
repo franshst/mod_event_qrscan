@@ -4,7 +4,7 @@
 
 ```sh
 python build.py 1.0.0
-# expect: exit 0, mod_event_qrscan.zip + event_qrscan_update.xml + sha256 (+md5) printed
+# expect: exit 0, mod_event_qrscan.zip + event_qrscan_update.xml + sha256 printed
 ```
 
 Verifies: lint, XML well-formed, manifest fields, ZIP completeness,

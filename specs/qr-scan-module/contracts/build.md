@@ -18,8 +18,7 @@ Arg must match semver `X.Y.Z`, else fail.
 3. `shutil.make_archive("mod_event_qrscan", "zip", tmp)` from
     `tmpl/, language/, js/` (incl. vendored `js/html5-qrcode.min.js` + `language/nl-NL/` per `contracts/language-files.md` rule 5) + `LICENSE` + manifest + `*.php`.
 4. ZIP completeness assert (required entries present incl. `js/html5-qrcode.min.js` + `language/nl-NL/` files, no temp/template leak).
-5. Substitute `{VERSION}` → `event_qrscan_update.xml`.
-6. `sha256(zip)` → `<sha256>`; print `sha256` (+ md5 informational).
+5. Substitute `{VERSION}` + `sha256(zip)` → `event_qrscan_update.xml` (`<version>`, `<downloadurl>`, `<sha256>` in a single pass); print `sha256`.
 
 ## Outputs
 
