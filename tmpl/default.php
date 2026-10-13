@@ -8,8 +8,8 @@ HTMLHelper::_('bootstrap.modal', 'qrscanModal', array(
 ?>
 <div id="reader"></div>
 <p id="aim-instruction"><?php echo JText::_('MOD_EVENT_QRSCAN_AIM_INSTRUCTION'); ?></p>
-<button id="start-stop-btn"> type="button" class="btn btn-primary"> <?php echo JText::_('MOD_EVENT_QRSCAN_START'); ?></button>
-<button id="switch-camera-btn"> type="button" class="btn btn-secondary" <?php echo JText::_('MOD_EVENT_QRSCAN_SWITCH_CAMERA'); ?></button>
+<button id="start-stop-btn" type="button" class="btn btn-primary"> <?php echo JText::_('MOD_EVENT_QRSCAN_START'); ?></button>
+<button id="switch-camera-btn" type="button" class="btn btn-secondary"> <?php echo JText::_('MOD_EVENT_QRSCAN_SWITCH_CAMERA'); ?></button>
 <div id="qrscanModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
