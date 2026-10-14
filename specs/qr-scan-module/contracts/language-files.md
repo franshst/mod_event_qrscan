@@ -21,5 +21,5 @@ language/
 3. **Placeholders**: any `%s` in an en-GB value MUST appear identically in the nl-NL value (count and form).
 4. **Encoding**: UTF-8, Joomla ini quoting (`KEY="value"`, `""`-escaped quotes if ever needed).
 5. **Installation**: no manifest change — `<folder>language</folder>` installs all subfolders; `build.py` zips `language/` wholesale.
-6. **JS consumption**: JS-displayed messages travel via `addScriptOptions` (PHP `JText::_()` resolution) under their module key names; `Joomla.getOptions(key, englishFallback)` at read time. English literals in JS are fallbacks only, never the displayed source when keys resolve.
+6. **JS consumption**: JS-displayed messages travel via `addScriptOptions` (PHP `Text::_()` resolution) under their module key names; `Joomla.getOptions(key, englishFallback)` at read time. English literals in JS are fallbacks only, never the displayed source when keys resolve.
 7. **Fallback**: a key absent from nl-NL resolves to en-GB via Joomla core; raw keys or blanks MUST never display (SC-9 probe).

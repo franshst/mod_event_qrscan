@@ -82,7 +82,7 @@ A single translatable display text, identified by key.
 - Validation rules (from FR-13/FR-16):
   - nl-NL key set MUST equal the en-GB key set (key parity; no missing, no orphan keys).
   - No key's text may be duplicated from code literals — ini files are the single source.
-- Relationships: many Language Strings live in one Language File; strings are consumed by template (PHP `JText`) or script options (JS `Joomla.getOptions`).
+- Relationships: many Language Strings live in one Language File; strings are consumed by template (PHP `Text`) or script options (JS `Joomla.getOptions`).
 
 ### LanguageFile
 

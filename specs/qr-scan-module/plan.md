@@ -2,14 +2,14 @@
 
 ## 1. Goal
 
-Provide a Joomla 5 site module for event volunteers to scan ticket QR codes,
+Provide a Joomla 5+ site module for event volunteers to scan ticket QR codes,
 send the ticket code to the Events Booking check-in endpoint, and show a single
 result popup. This plan documents the Technical Stack and the design artifacts.
 
 ## 2. User Decisions Incorporated
 
 - Module name: `mod_event_qrscan`.
-- Modal: Joomla 5 built-in Bootstrap 5 (`renderModal` + `bootstrap.Modal`). `tingle.modal` DROPPED.
+- Modal: Joomla 5+ built-in Bootstrap 5 (`renderModal` + `bootstrap.Modal`). `tingle.modal` DROPPED.
 - `&t=Date.now()` is a GET cache-buster only, no server semantics.
 - `Joomla.getOptions('checkinUrl')` from Events Booking scope is NOT reliable on
   its own; the module bootstraps EB server-side and reads
@@ -24,10 +24,10 @@ result popup. This plan documents the Technical Stack and the design artifacts.
 
 ## 3. Technical Context
 
-- Type: Joomla 5 Site Module `mod_event_qrscan`, layout modeled on
+- Type: Joomla 5+ Site Module `mod_event_qrscan`, layout modeled on
   https://github.com/franshst/Event-summary (`mod_eventsummary.php`, `tmpl/`,
   `Helper/`, `language/`, `js/`, `update/`, `build.py`).
-- Languages: PHP >= 8.1 (Joomla 5 minimum), JavaScript ES6 `'use strict'`,
+- Languages: PHP >= 8.1 (Joomla 5 minimum; Joomla 6 test env needs PHP >= 8.3), JavaScript ES6 `'use strict'`,
   Python 3.x (build tooling only).
 - Release: `mod_event_qrscan.zip` (installable) + `event_qrscan_update.xml`
   (Joomla Update System). ZIP created by `python build.py <semver>`.
@@ -50,7 +50,7 @@ result popup. This plan documents the Technical Stack and the design artifacts.
   device (wrap-around).
 - Modal: Bootstrap 5 via Joomla core (`HTMLHelper::_('bootstrap.modal')` /
   `Bootstrap::renderModal` in `tmpl/default.php`, `new bootstrap.Modal(...)` /
-   `.show()` in JS). Joomla 5 always ships Bootstrap 5, so the modal is the
+   `.show()` in JS). Joomla 5+ ships Bootstrap 5, so the modal is the
    only result surface (no inline-text fallback, per amended FR-6).
 - Joomla Core JS: `Joomla.request`, `Joomla.getOptions`.
 - Dedup: `sessionStorage[decodedText] = timestamp`; skip rescan if
@@ -181,6 +181,6 @@ Dutch translations accepted as-is; native-speaker review out of scope.
 
 ## 9. Dutch translation support (merged from `001-dutch-translation-support`)
 
-Every user-visible string resolves through Joomla's language system (built-in text or module ini keys); complete nl-NL translation ships with the module (17 keys, `%s` preserved). Approach: keep the existing `JText`/`addScriptOptions` pattern — pass the hardcoded JavaScript messages as script options from `mod_event_qrscan.php`, add `language/nl-NL/` ini + sys.ini mirroring en-GB, rely on Joomla's automatic en-GB fallback. No manifest change, no new dependencies.
+Every user-visible string resolves through Joomla's language system (built-in text or module ini keys); complete nl-NL translation ships with the module (17 keys, `%s` preserved). Approach: keep the existing `Text`/`addScriptOptions` pattern — pass the hardcoded JavaScript messages as script options from `mod_event_qrscan.php`, add `language/nl-NL/` ini + sys.ini mirroring en-GB, rely on Joomla's automatic en-GB fallback. No manifest change, no new dependencies.
 Minification reaffirmed (C1): `uglifyjs` runs inside `build.py`; `tasks.md` T021 is superseded.
 Future improvement (noted): manual `build.py` + hand-installed ZIP + manual language passes as user-testing method is unsatisfactory — consider automated install/smoke checks.

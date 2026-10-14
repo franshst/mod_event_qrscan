@@ -10,9 +10,9 @@ python build.py 1.0.0
 Verifies: lint, XML well-formed, manifest fields, ZIP completeness,
 version consistency, hashes. See `contracts/build.md`.
 
-## B. Manual (local Joomla 5, one pass per release)
+## B. Manual (local Joomla 5/6, one pass per release)
 
-Prereqs: local Joomla 5 (PHP >= 8.1) with com_eventbooking installed,
+Prereqs: local Joomla 5 or 6 (PHP >= 8.3 for Joomla 6) with com_eventbooking installed,
 browser with camera permission, printed/sample QR (e.g. `Z8GiIIIKzOKwbvO6`).
 
 1. Install `mod_event_qrscan.zip` via Extension Manager; enable; place module.

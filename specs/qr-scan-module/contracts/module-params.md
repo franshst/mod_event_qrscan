@@ -25,4 +25,4 @@ Plus the 6 i18n message keys wired via `addScriptOptions` (FR-14/R13, English va
 `MOD_EVENT_QRSCAN_ERROR_OFFLINE`, `MOD_EVENT_QRSCAN_ERROR_INVALID_QR`,
 `MOD_EVENT_QRSCAN_ERROR_EB_ABSENT`,
 `MOD_EVENT_QRSCAN_ERROR_UNKNOWN` (one per JS `getErrorMessage` case).
-`MOD_EVENT_QRSCAN_ERROR_CHECKIN_CONFIG` is resolved PHP-side via `JText::_()` directly (missing-EB error, no scanner), not via script options.
+`MOD_EVENT_QRSCAN_ERROR_CHECKIN_CONFIG` is resolved PHP-side via `Text::_()` directly (missing-EB error, no scanner), not via script options.

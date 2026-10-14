@@ -33,7 +33,7 @@ Module project root is separate from this reference repo; paths below are module
 ## Phase 5 — Validation
 
 - [X] T15. Run `python build.py 1.0.0` → exit 0, `mod_event_qrscan.zip` + `event_qrscan_update.xml` + hashes (per `contracts/build.md`)
-- [X] T16. Manual Joomla 5 checklist per `quickstart.md`: install (EB present), place, verify EB-resolved endpoint + sounds, camera cycle, sample QR scan (modal + EB success sound), negatives incl. EB fail sound with specific messages — no camera → "No camera available."; camera in use → "Camera is in use by another application."; offline → "No network, check-in service unavailable"; invalid QR → "This seems not to be a ticket QR code"; bad key → check-in module's own message; EB absent → "Error while communicating with check-in service, error code is %s"; unknown → "An error occurred" (FR8 lock: second QR during open modal sends no request — verify single request in devtools Network), dedup (rescan same code <2 s suppressed, after sent) via `&t=`, updater bump test
+- [X] T16. Manual Joomla 5/6 checklist per `quickstart.md`: install (EB present), place, verify EB-resolved endpoint + sounds, camera cycle, sample QR scan (modal + EB success sound), negatives incl. EB fail sound with specific messages — no camera → "No camera available."; camera in use → "Camera is in use by another application."; offline → "No network, check-in service unavailable"; invalid QR → "This seems not to be a ticket QR code"; bad key → check-in module's own message; EB absent → "Error while communicating with check-in service, error code is %s"; unknown → "An error occurred" (FR8 lock: second QR during open modal sends no request — verify single request in devtools Network), dedup (rescan same code <2 s suppressed, after sent) via `&t=`, updater bump test
 
 ## Done When
 
@@ -68,7 +68,7 @@ NOTE: there is no T6 — the ID was never assigned (Phase 2 jumps T5 → T7a); I
 
 ### Setup (key inventory)
 
-- [X] T028 [P] Audit PHP/tmpl language keys vs en-GB ini: grep all `JText::_`/`Joomla.getOptions` keys in `mod_event_qrscan.php` and `tmpl/default.php` and confirm each exists in `language/en-GB/en-GB.mod_event_qrscan.ini` (per FR-12)
+- [X] T028 [P] Audit PHP/tmpl language keys vs en-GB ini: grep all `Text::_`/`Joomla.getOptions` keys in `mod_event_qrscan.php` and `tmpl/default.php` and confirm each exists in `language/en-GB/en-GB.mod_event_qrscan.ini` (per FR-12)
 - [X] T029 [P] Audit JS hardcoded strings: list the 7 `getErrorMessage` cases in `js/site-checkin-default.js` (`no_camera`, `camera_busy`, `offline`, `invalid_qr`, `bad_key`, `eb_absent`, `unknown`; union per C4 — `camera_busy` = "camera in use" message) and confirm each has a matching en-GB key for the script-options wiring
 
 ### Foundational
@@ -83,7 +83,7 @@ NOTE: there is no T6 — the ID was never assigned (Phase 2 jumps T5 → T7a); I
 
 ### Language-system sourcing (FR-12/FR-14/FR-16, SC-8/SC-9)
 
-- [X] T034 [P] Add `addScriptOptions` calls in `mod_event_qrscan.php` resolving the 7 JS message keys via `JText::_` (same pattern as existing `MOD_EVENT_QRSCAN_START`/`STOP` options, per R13 and `contracts/language-files.md` rule 6; extends the T3 key list per C2)
+- [X] T034 [P] Add `addScriptOptions` calls in `mod_event_qrscan.php` resolving the 7 JS message keys via `Text::_` (same pattern as existing `MOD_EVENT_QRSCAN_START`/`STOP` options, per R13 and `contracts/language-files.md` rule 6; extends the T3 key list per C2)
 - [X] T035 [P] Rewrite `EventQrscanHelper.getErrorMessage` in `js/site-checkin-default.js` to read each message via `Joomla.getOptions(key, englishFallback)`, keeping current English literals only as fallbacks (SC-5 texts are fallbacks per C3)
 - [X] T036 Verify JS via `build.py` gates (`node --check` + `uglifyjs` minify run inside `build.py` per T11) — no standalone `uglifyjs` task (C1 decision) — depends on T035
 
@@ -153,7 +153,7 @@ NOTE: there is no T6 — the ID was never assigned (Phase 2 jumps T5 → T7a); I
 
 ## Phase 15: Convergence (T066 refresh after 2026-10-05 FR-6 amendment)
 
-> Spec now mandates modal-only FR-6 (Joomla 5 always ships Bootstrap 5; inline-text fallback retired). T066 assess-only is superseded by the executable tasks below. Scope warning: only the result-surface fallback goes — camera `fallbackConfig`, audio silent fallback, `pause()` flag-only fallback, and en-GB language fallback are separate requirements and stay.
+> Spec now mandates modal-only FR-6 (Joomla 5+ ships Bootstrap 5; inline-text fallback retired). T066 assess-only is superseded by the executable tasks below. Scope warning: only the result-surface fallback goes — camera `fallbackConfig`, audio silent fallback, `pause()` flag-only fallback, and en-GB language fallback are separate requirements and stay.
 
 - [X] T073 Remove the non-bootstrap `#qrscan-fallback` else-branch from `showModal()` in `js/site-checkin-default.js` (assume `bootstrap.Modal`), drop `hideInlineFallback()` and its `startScanner()` call site only if left without purpose, and trim the `bootstrap.Modal` presence probe from the init log line per FR-6 (Session 2026-10-05) (contradicts)
 - [X] T074 Align plan §3.1 modal paragraph with amended FR-6: delete the "if `bootstrap.Modal` is unavailable, render result text in an inline div" fallback sentence so plan no longer contradicts spec per FR-6 (Session 2026-10-05) (contradicts)

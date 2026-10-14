@@ -2,7 +2,7 @@
 
 ## What the module does
 
-`mod_event_qrscan` is a Joomla 5 site module that enables event volunteers to scan ticket QR codes at entrance checkpoints. The volunteer selects the module from the event organizer's website, points their phone camera at a ticket, and the module reads the QR code, validates it, and sends the ticket code to the Events Booking check-in service. A result popup then appears showing whether the check-in succeeded or failed, along with an audible cue (success or failure sound played from Events Booking's media files).
+`mod_event_qrscan` is a Joomla 5+ site module that enables event volunteers to scan ticket QR codes at entrance checkpoints. The volunteer selects the module from the event organizer's website, points their phone camera at a ticket, and the module reads the QR code, validates it, and sends the ticket code to the Events Booking check-in service. A result popup then appears showing whether the check-in succeeded or failed, along with an audible cue (success or failure sound played from Events Booking's media files).
 
 The module is built on the `@taluks/html5-qrcode` library (v2.3.9) for cross-browser QR scanning and integrates with the Events Booking (`com_eventbooking`) component via its `scan.qr_code_checkin` endpoint.
 
@@ -38,7 +38,7 @@ All error messages are displayed in the modal or inline fallback — never via `
 
 ### Installation
 
-1. Install **Events Booking** (`com_eventbooking`) on your Joomla 5 site. The module depends on it — without it, the module displays an error message and no scanner is available.
+1. Install **Events Booking** (`com_eventbooking`) on your Joomla 5+ site. The module depends on it — without it, the module displays an error message and no scanner is available.
 2. Upload the `mod_event_qrscan.zip` via **Extensions → Install → Upload Package** in the Joomla administrator panel.
 3. Place the module: go to **Extensions → Modules**, find `mod_event_qrscan`, and assign it to a menu position on the desired page.
 
