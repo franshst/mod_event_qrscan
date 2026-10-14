@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>T069 camera-labels probe (iOS Safari field evidence)</title>
+<style>
+body { font-family: sans-serif; margin: 1em; }
+button { display: block; margin: .6em 0; padding: .7em 1em; font-size: 1rem; }
+pre { background: #f4f4f4; padding: .8em; white-space: pre-wrap; word-break: break-all; }
+</style>
+</head>
+<body>
+<h1>T069 camera-labels probe</h1>
+<p>Run the steps in order on the iPhone (Safari). Copy the log at the end into the T069 field report.</p>
+<button id="step1" type="button">1. Enumerate cameras (before permission)</button>
+<button id="step2" type="button">2. Grant permission + enumerate again</button>
+<button id="step3" type="button">3. Test back-camera constraint (facingMode exact environment)</button>
+<pre id="log">probe ready. UA: placeholder</pre>
+<script>
+'use strict';
+var logEl = document.getElementById('log');
+logEl.textContent = 'probe ready. UA: ' + navigator.userAgent;
+function log(msg) {
+	logEl.textContent += '\n' + msg;
+	try { console.log('[probe] ' + msg); } catch (e) {}
+}
+var liveStream = null;
+function stopStream() {
+	if (!liveStream) return;
+	liveStream.getTracks().forEach(function (t) { try { t.stop(); } catch (e) {} });
+	liveStream = null;
+}
+function dumpCameras(tag) {
+	if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+		log(tag + ': enumerateDevices NOT AVAILABLE');
+		return Promise.resolve();
+	}
+	return navigator.mediaDevices.enumerateDevices().then(function (devices) {
+		var cams = devices.filter(function (d) { return d.kind === 'videoinput'; });
+		var empty = cams.filter(function (c) { return !c.label; }).length;
+		log(tag + ': video inputs=' + cams.length + ', empty labels=' + empty);
+		cams.forEach(function (c, i) {
+			log('  [' + i + '] label="' + (c.label || '') + '" id="' + c.deviceId + '"');
+		});
+	}).catch(function (e) {
+		log(tag + ': enumerate FAILED: ' + (e && e.name) + ' ' + (e && e.message));
+	});
+}
+document.getElementById('step1').addEventListener('click', function () {
+	log('secure context: ' + window.isSecureContext);
+	dumpCameras('pre-permission');
+});
+document.getElementById('step2').addEventListener('click', function () {
+	if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+		log('getUserMedia NOT AVAILABLE');
+		return;
+	}
+	navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(function (s) {
+		liveStream = s;
+		log('permission granted, stream active');
+		return dumpCameras('post-permission');
+	}).then(stopStream).catch(function (e) {
+		log('permission FAILED: ' + (e && e.name) + ' ' + (e && e.message));
+	});
+});
+document.getElementById('step3').addEventListener('click', function () {
+	if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+		log('getUserMedia NOT AVAILABLE');
+		return;
+	}
+	navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } }, audio: false }).then(function (s) {
+		liveStream = s;
+		var track = s.getVideoTracks()[0];
+		log('exact-environment: OK, track label="' + (track && track.label) + '"');
+		stopStream();
+	}).catch(function (e) {
+		log('exact-environment FAILED: ' + (e && e.name) + ' ' + (e && e.message));
+	});
+});
+</script>
+</body>
+</html>
